@@ -13,6 +13,10 @@ export class CasinoLedgerDB extends Dexie {
       sessions: "++id, playDate, game, format, country, currency, pnlJpy, createdAt",
       venues: "++id, country, name, favorite, lastUsedAt",
     });
+    this.version(2).stores({
+      sessions: "++id, playDate, game, format, country, currency, pnlJpy, createdAt, cloudId, syncedAt",
+      venues: "++id, country, name, favorite, lastUsedAt",
+    });
   }
 }
 

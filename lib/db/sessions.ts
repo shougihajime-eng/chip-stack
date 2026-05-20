@@ -76,10 +76,53 @@ export async function listVenues(): Promise<VenuePreset[]> {
   return db.venues.orderBy("lastUsedAt").reverse().toArray();
 }
 
+export async function toggleVenueFavorite(id: number): Promise<void> {
+  const db = getDb();
+  const v = await db.venues.get(id);
+  if (!v) return;
+  await db.venues.update(id, { favorite: v.favorite ? 0 : 1 });
+}
+
+export async function listFavoriteVenues(): Promise<VenuePreset[]> {
+  const db = getDb();
+  return db.venues
+    .where("favorite")
+    .equals(1)
+    .toArray()
+    .then((list) => list.sort((a, b) => (a.lastUsedAt < b.lastUsedAt ? 1 : -1)));
+}
+
 export async function clearAll(): Promise<void> {
   const db = getDb();
   await db.sessions.clear();
   await db.venues.clear();
+}
+
+export async function bulkAddSessions(
+  rows: Omit<Session, "id">[],
+): Promise<{ inserted: number; skipped: number }> {
+  if (rows.length === 0) return { inserted: 0, skipped: 0 };
+  const db = getDb();
+  let inserted = 0;
+  let skipped = 0;
+  await db.sessions.bulkAdd(
+    rows.map((r) => ({ ...r })),
+    { allKeys: true },
+  ).then((keys) => {
+    inserted = keys.length;
+  }).catch((err) => {
+    if (err?.failures) {
+      skipped = err.failures.length;
+      inserted = rows.length - err.failures.length;
+    } else {
+      skipped = rows.length;
+    }
+  });
+  // Best-effort venue learning
+  for (const r of rows) {
+    if (r.venue) await rememberVenue(r.country, r.venue);
+  }
+  return { inserted, skipped };
 }
 
 export async function exportJson(): Promise<string> {

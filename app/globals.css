@@ -292,6 +292,14 @@ body::before {
   animation: overlay-fade 1100ms ease-in-out forwards;
 }
 
+@keyframes overlay-fade-static {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+.animate-overlay-fade-static {
+  animation: overlay-fade-static 200ms ease-out forwards;
+}
+
 /* Stagger fade for recent rows */
 @keyframes row-rise {
   0% { opacity: 0; transform: translateY(8px); }

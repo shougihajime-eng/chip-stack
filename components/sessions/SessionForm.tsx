@@ -11,7 +11,14 @@ import { Field, Input, NumberInput, Select, Textarea } from "@/components/ui/Fie
 import { Money } from "@/components/ui/Money";
 import { CURRENCIES, type CurrencyCode, formatJpy, getCurrency, toJpy } from "@/lib/currency";
 import { COUNTRIES, type Country, GAMES, type GameCategory, type SessionFormat } from "@/lib/games";
-import { addSession, deleteSession, listVenues, updateSession } from "@/lib/db/sessions";
+import {
+  addSession,
+  deleteSession,
+  listFavoriteVenues,
+  listVenues,
+  toggleVenueFavorite,
+  updateSession,
+} from "@/lib/db/sessions";
 import type { Session } from "@/lib/db/schema";
 import { todayIsoDate } from "@/lib/utils";
 import { getFxRate, type FxResult } from "@/lib/fx";
@@ -51,10 +58,18 @@ export function SessionForm({ initial }: Props) {
   const [fxFetchedAt, setFxFetchedAt] = useState<string | null>(null);
 
   const venues = useLiveQuery(() => listVenues(), [], []);
+  const favorites = useLiveQuery(() => listFavoriteVenues(), [], []);
   const venueOptions = useMemo(() => {
     const list = (venues ?? []).filter((v) => v.country === country);
     return list.slice(0, 8).map((v) => v.name);
   }, [venues, country]);
+  const currentVenueId = useMemo(() => {
+    return venues?.find((v) => v.country === country && v.name === venue.trim())?.id;
+  }, [venues, country, venue]);
+  const currentIsFavorite = useMemo(() => {
+    if (!currentVenueId) return false;
+    return venues?.find((v) => v.id === currentVenueId)?.favorite === 1;
+  }, [venues, currentVenueId]);
 
   // Auto-fetch FX rate when currency changes to non-JPY (and not in edit mode)
   useEffect(() => {
@@ -147,6 +162,32 @@ export function SessionForm({ initial }: Props) {
   return (
     <>
     {savedPnl !== null && <ChipDrop amount={savedPnl} />}
+    {(favorites?.length ?? 0) > 0 && (
+      <div className="mb-5 rounded-2xl border border-gold/20 bg-gradient-to-br from-gold/5 to-felt/15 px-4 py-3">
+        <div className="mb-2 flex items-center gap-2 text-[10px] font-medium uppercase tracking-[0.2em] text-gold">
+          <span>★</span>
+          <span>お気に入りカジノ</span>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {favorites?.map((v) => (
+            <button
+              key={v.id}
+              type="button"
+              onClick={() => {
+                setCountry(v.country);
+                setVenue(v.name);
+              }}
+              className="btn-chip inline-flex items-center gap-1.5 rounded-full border border-gold/40 bg-gradient-to-b from-gold/10 to-gold/5 px-3 py-1.5 text-[12px] font-medium tracking-wide text-gold-bright transition-colors hover:border-gold/70 hover:from-gold/20"
+            >
+              <span className="text-[10px] opacity-80">★</span>
+              {v.name}
+              <span className="ml-0.5 text-[10px] text-gold/60">·</span>
+              <span className="text-[10px] text-gold/60">{v.country}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    )}
     <form onSubmit={handleSubmit} className="space-y-5">
       <Card>
         <CardBody className="space-y-5">
@@ -199,13 +240,38 @@ export function SessionForm({ initial }: Props) {
               </Select>
             </Field>
             <Field label="カジノ・店舗名" required hint={venueOptions.length ? "履歴から選べます" : undefined}>
-              <Input
-                value={venue}
-                onChange={(e) => setVenue(e.target.value)}
-                list="venue-history"
-                placeholder="例: Wynn Las Vegas"
-                required
-              />
+              <div className="flex items-center gap-2">
+                <div className="flex-1">
+                  <Input
+                    value={venue}
+                    onChange={(e) => setVenue(e.target.value)}
+                    list="venue-history"
+                    placeholder="例: Wynn Las Vegas"
+                    required
+                  />
+                </div>
+                {currentVenueId && (
+                  <button
+                    type="button"
+                    onClick={() => currentVenueId && toggleVenueFavorite(currentVenueId)}
+                    title={currentIsFavorite ? "お気に入りから外す" : "お気に入りに追加"}
+                    className="btn-chip inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-border bg-surface/50 transition-colors hover:border-gold/50"
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      className={`h-4 w-4 transition-colors ${currentIsFavorite ? "fill-gold text-gold" : "fill-none text-muted"}`}
+                      stroke="currentColor"
+                      strokeWidth="1.6"
+                    >
+                      <path
+                        d="M12 3l2.6 5.4 5.9.8-4.3 4.1 1.1 5.9L12 16.4l-5.3 2.8 1.1-5.9L3.5 9.2l5.9-.8L12 3z"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </button>
+                )}
+              </div>
               {venueOptions.length > 0 && (
                 <datalist id="venue-history">
                   {venueOptions.map((v) => (

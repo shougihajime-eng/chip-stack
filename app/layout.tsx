@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Playfair_Display, Inter_Tight, Cormorant_Garamond } from "next/font/google";
 import "./globals.css";
 import { AppShell } from "@/components/layout/AppShell";
+import { AuthProvider } from "@/lib/supabase/auth";
 
 const playfair = Playfair_Display({
   variable: "--font-display",
@@ -61,7 +62,9 @@ export default function RootLayout({
       className={`${playfair.variable} ${interTight.variable} ${cormorant.variable} h-full antialiased`}
     >
       <body className="min-h-dvh">
-        <AppShell>{children}</AppShell>
+        <AuthProvider>
+          <AppShell>{children}</AppShell>
+        </AuthProvider>
       </body>
     </html>
   );

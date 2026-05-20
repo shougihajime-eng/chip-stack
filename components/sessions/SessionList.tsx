@@ -13,6 +13,7 @@ import type { Session } from "@/lib/db/schema";
 import { formatDateShort } from "@/lib/utils";
 import { formatCurrency } from "@/lib/currency";
 import { downloadCsv, suggestFilename } from "@/lib/export";
+import { ImportButton } from "./ImportButton";
 
 type Period = "all" | "month" | "year" | "3months";
 
@@ -99,9 +100,10 @@ export function SessionList() {
               title="表示中のセッションを CSV で書き出し"
             >
               <DownloadIcon className="h-3 w-3" />
-              CSV
+              書出
             </button>
           )}
+          <ImportButton />
         </div>
         <span className="flex items-baseline gap-2">
           <span className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted">合計</span>

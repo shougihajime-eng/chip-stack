@@ -10,6 +10,7 @@ import { PlayingCard } from "@/components/ui/PlayingCard";
 import { AnimatedJpy, CountUp } from "@/components/ui/CountUp";
 import { MonthlyChart } from "@/components/charts/MonthlyChart";
 import { BreakdownChart, buildGameBuckets, buildVenueBuckets } from "@/components/charts/BreakdownChart";
+import { AnalyticsCards } from "./AnalyticsCards";
 import { listSessions } from "@/lib/db/sessions";
 import type { Session } from "@/lib/db/schema";
 import { formatCurrency } from "@/lib/currency";
@@ -213,6 +214,9 @@ export function HomeDashboard() {
           <MonthlyChart sessions={sessions} />
         </CardBody>
       </Card>
+
+      {/* Advanced analytics */}
+      <AnalyticsCards sessions={sessions} />
 
       {/* Breakdown charts */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">

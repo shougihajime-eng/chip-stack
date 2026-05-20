@@ -29,6 +29,10 @@ export interface Session {
   memo?: string;
   createdAt: string;
   updatedAt: string;
+  /** Supabase row UUID — set after first cloud sync */
+  cloudId?: string | null;
+  /** ISO timestamp of last successful push to cloud */
+  syncedAt?: string | null;
 }
 
 export interface VenuePreset {

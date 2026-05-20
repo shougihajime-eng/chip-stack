@@ -17,10 +17,23 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <nav className="hidden items-center gap-1 sm:flex">
             <NavLink href="/">ホーム</NavLink>
             <NavLink href="/sessions">セッション</NavLink>
+            <NavLink href="/account">アカウント</NavLink>
             <NavLink href="/sessions/new" emphasis>
               新規
             </NavLink>
           </nav>
+          <Link
+            href="/account"
+            className="ml-2 grid h-8 w-8 place-items-center rounded-full border border-border text-muted transition-colors hover:border-gold/50 hover:text-gold-bright sm:hidden"
+            title="アカウント"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-3.5 w-3.5">
+              <path
+                d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21a8 8 0 0 1 16 0"
+                strokeLinecap="round"
+              />
+            </svg>
+          </Link>
         </div>
       </header>
 
