@@ -9,6 +9,7 @@ import { Money } from "@/components/ui/Money";
 import { PlayingCard } from "@/components/ui/PlayingCard";
 import { AnimatedJpy, CountUp } from "@/components/ui/CountUp";
 import { MonthlyChart } from "@/components/charts/MonthlyChart";
+import { BreakdownChart, buildGameBuckets, buildVenueBuckets } from "@/components/charts/BreakdownChart";
 import { listSessions } from "@/lib/db/sessions";
 import type { Session } from "@/lib/db/schema";
 import { formatCurrency } from "@/lib/currency";
@@ -72,6 +73,11 @@ export function HomeDashboard() {
   const sessions = useLiveQuery(() => listSessions(), [], undefined);
   const stats = useMemo(() => computeStats(sessions ?? []), [sessions]);
   const recent = useMemo(() => (sessions ?? []).slice(0, 5), [sessions]);
+  const gameBuckets = useMemo(
+    () => buildGameBuckets(sessions ?? [], getGameLabel as (code: string) => string),
+    [sessions],
+  );
+  const venueBuckets = useMemo(() => buildVenueBuckets(sessions ?? []), [sessions]);
 
   if (sessions === undefined) {
     return <div className="px-1 py-16 text-center text-sm text-muted">読み込み中...</div>;
@@ -207,6 +213,28 @@ export function HomeDashboard() {
           <MonthlyChart sessions={sessions} />
         </CardBody>
       </Card>
+
+      {/* Breakdown charts */}
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>ゲーム別 収支</CardTitle>
+            <span className="text-[11px] text-subtle">上位 {Math.min(6, gameBuckets.length)} 種</span>
+          </CardHeader>
+          <CardBody>
+            <BreakdownChart buckets={gameBuckets} limit={6} />
+          </CardBody>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>場所別 収支</CardTitle>
+            <span className="text-[11px] text-subtle">上位 {Math.min(6, venueBuckets.length)} 箇所</span>
+          </CardHeader>
+          <CardBody>
+            <BreakdownChart buckets={venueBuckets} limit={6} />
+          </CardBody>
+        </Card>
+      </div>
 
       {/* Recent sessions */}
       <Card>

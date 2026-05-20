@@ -14,6 +14,7 @@ import { COUNTRIES, type Country, GAMES, type GameCategory, type SessionFormat }
 import { addSession, deleteSession, listVenues, updateSession } from "@/lib/db/sessions";
 import type { Session } from "@/lib/db/schema";
 import { todayIsoDate } from "@/lib/utils";
+import { getFxRate, type FxResult } from "@/lib/fx";
 
 interface Props {
   initial?: Session;
@@ -45,22 +46,50 @@ export function SessionForm({ initial }: Props) {
   const [saving, setSaving] = useState(false);
   const [savedPnl, setSavedPnl] = useState<number | null>(null);
 
+  type FxStatus = "idle" | "loading" | FxResult["source"] | "manual";
+  const [fxStatus, setFxStatus] = useState<FxStatus>(editing ? "manual" : "idle");
+  const [fxFetchedAt, setFxFetchedAt] = useState<string | null>(null);
+
   const venues = useLiveQuery(() => listVenues(), [], []);
   const venueOptions = useMemo(() => {
     const list = (venues ?? []).filter((v) => v.country === country);
     return list.slice(0, 8).map((v) => v.name);
   }, [venues, country]);
 
-  // Reset fxRate to currency default when user switches currency (unless editing)
+  // Auto-fetch FX rate when currency changes to non-JPY (and not in edit mode)
   useEffect(() => {
-    const defaultRate = getCurrency(currency).defaultRate;
-    setFxRate((prev) => {
-      const n = parseNumber(prev);
-      if (currency === "JPY") return "1";
-      if (!editing && (n === 0 || n === 1)) return String(defaultRate);
-      return prev;
+    if (currency === "JPY") {
+      setFxRate("1");
+      setFxStatus("idle");
+      setFxFetchedAt(null);
+      return;
+    }
+    if (editing) {
+      // For existing sessions, keep the stored rate; mark as manual
+      setFxStatus("manual");
+      return;
+    }
+    let cancelled = false;
+    setFxStatus("loading");
+    getFxRate(currency).then((res) => {
+      if (cancelled) return;
+      setFxRate(res.rate.toFixed(4));
+      setFxStatus(res.source);
+      setFxFetchedAt(res.fetchedAt ?? null);
     });
+    return () => {
+      cancelled = true;
+    };
   }, [currency, editing]);
+
+  async function refreshFx() {
+    if (currency === "JPY") return;
+    setFxStatus("loading");
+    const res = await getFxRate(currency, { force: true });
+    setFxRate(res.rate.toFixed(4));
+    setFxStatus(res.source);
+    setFxFetchedAt(res.fetchedAt ?? null);
+  }
 
   const buyInNum = parseNumber(buyIn);
   const cashOutNum = parseNumber(cashOut);
@@ -211,13 +240,55 @@ export function SessionForm({ initial }: Props) {
           </div>
 
           {currency !== "JPY" && (
-            <Field label={`為替レート (1 ${currency} = JPY)`} required>
-              <NumberInput
-                value={fxRate}
-                onChange={(e) => setFxRate(e.target.value)}
-                placeholder={String(c.defaultRate)}
-                required
-              />
+            <Field
+              label={`為替レート (1 ${currency} = JPY)`}
+              required
+              hint={
+                fxStatus === "loading"
+                  ? "取得中..."
+                  : fxStatus === "live"
+                  ? `自動取得${fxFetchedAt ? ` ${new Date(fxFetchedAt).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" })}` : ""}`
+                  : fxStatus === "cache"
+                  ? "本日のキャッシュ"
+                  : fxStatus === "fallback"
+                  ? "取得失敗・既定値"
+                  : fxStatus === "manual"
+                  ? "手動入力"
+                  : undefined
+              }
+            >
+              <div className="flex items-center gap-2">
+                <NumberInput
+                  value={fxRate}
+                  onChange={(e) => {
+                    setFxRate(e.target.value);
+                    setFxStatus("manual");
+                  }}
+                  placeholder={String(c.defaultRate)}
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={refreshFx}
+                  disabled={fxStatus === "loading"}
+                  title="最新の為替レートを取得"
+                  className="btn-chip inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-border bg-surface/50 text-muted transition-colors hover:border-gold/50 hover:text-gold-bright disabled:opacity-50"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.6"
+                    className={`h-4 w-4 ${fxStatus === "loading" ? "animate-spin" : ""}`}
+                  >
+                    <path
+                      d="M3.5 12a8.5 8.5 0 0 1 14.2-6.3M20.5 12a8.5 8.5 0 0 1-14.2 6.3"
+                      strokeLinecap="round"
+                    />
+                    <path d="M17.5 3v3h-3M6.5 21v-3h3" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </button>
+              </div>
             </Field>
           )}
 

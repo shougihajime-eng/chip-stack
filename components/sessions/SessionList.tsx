@@ -12,6 +12,7 @@ import { listSessions } from "@/lib/db/sessions";
 import type { Session } from "@/lib/db/schema";
 import { formatDateShort } from "@/lib/utils";
 import { formatCurrency } from "@/lib/currency";
+import { downloadCsv, suggestFilename } from "@/lib/export";
 
 type Period = "all" | "month" | "year" | "3months";
 
@@ -85,10 +86,23 @@ export function SessionList() {
         </CardBody>
       </Card>
 
-      <div className="flex items-baseline justify-between px-1">
-        <span className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted">
-          {filtered.length} セッション
-        </span>
+      <div className="flex items-center justify-between px-1">
+        <div className="flex items-center gap-3">
+          <span className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted">
+            {filtered.length} セッション
+          </span>
+          {(sessions?.length ?? 0) > 0 && (
+            <button
+              type="button"
+              onClick={() => downloadCsv(filtered, suggestFilename())}
+              className="btn-chip inline-flex items-center gap-1.5 rounded-full border border-border bg-surface/50 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.14em] text-muted transition-colors hover:border-gold/40 hover:text-gold-bright"
+              title="表示中のセッションを CSV で書き出し"
+            >
+              <DownloadIcon className="h-3 w-3" />
+              CSV
+            </button>
+          )}
+        </div>
         <span className="flex items-baseline gap-2">
           <span className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted">合計</span>
           <Money amount={total} size="lg" />
@@ -159,6 +173,15 @@ function SessionRow({ session }: { session: Session }) {
         </div>
       </Link>
     </li>
+  );
+}
+
+function DownloadIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" className={className}>
+      <path d="M12 4v12m0 0l-4-4m4 4l4-4" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M4 20h16" strokeLinecap="round" />
+    </svg>
   );
 }
 
