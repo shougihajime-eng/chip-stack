@@ -1,26 +1,190 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* base surfaces */
+  --background: #0a0e0d;
+  --surface: #131918;
+  --surface-elevated: #1c2422;
+  --surface-overlay: #232c2a;
+  --felt: #0f3d2e;
+
+  /* text */
+  --foreground: #f5f1e8;
+  --foreground-muted: #9c948a;
+  --foreground-subtle: #5f5a52;
+
+  /* gold accents */
+  --gold: #c9a961;
+  --gold-bright: #e4c987;
+  --gold-dim: #897547;
+
+  /* data colors */
+  --profit: #34b27d;
+  --profit-bg: rgba(52, 178, 125, 0.1);
+  --loss: #c14a5a;
+  --loss-bg: rgba(193, 74, 90, 0.1);
+
+  /* borders */
+  --border: rgba(201, 169, 97, 0.14);
+  --border-strong: rgba(201, 169, 97, 0.28);
+  --border-subtle: rgba(245, 241, 232, 0.06);
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-elevated: var(--surface-elevated);
+  --color-surface-overlay: var(--surface-overlay);
+  --color-felt: var(--felt);
+
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-muted: var(--foreground-muted);
+  --color-subtle: var(--foreground-subtle);
+
+  --color-gold: var(--gold);
+  --color-gold-bright: var(--gold-bright);
+  --color-gold-dim: var(--gold-dim);
+
+  --color-profit: var(--profit);
+  --color-loss: var(--loss);
+  --color-profit-bg: var(--profit-bg);
+  --color-loss-bg: var(--loss-bg);
+
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-border-subtle: var(--border-subtle);
+
+  --font-display: var(--font-display);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html,
+body {
+  overflow-x: hidden;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
+  background:
+    radial-gradient(ellipse 90% 50% at 50% -10%, rgba(15, 61, 46, 0.22), transparent 60%),
+    radial-gradient(ellipse 60% 40% at 100% 110%, rgba(201, 169, 97, 0.06), transparent 70%),
+    var(--background);
+  background-attachment: fixed;
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-feature-settings: "ss01";
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* subtle felt texture overlay */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.012) 1px, transparent 1px),
+    radial-gradient(circle at 70% 70%, rgba(0, 0, 0, 0.12) 1px, transparent 1px);
+  background-size: 5px 5px, 7px 7px;
+  z-index: 0;
+  opacity: 0.6;
+}
+
+main {
+  position: relative;
+  z-index: 1;
+}
+
+/* tabular numerals helper */
+.tabular {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+.font-numeric {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+.font-display {
+  font-family: var(--font-display), Georgia, serif;
+  letter-spacing: -0.015em;
+}
+
+/* focus styling */
+:focus-visible {
+  outline: 1.5px solid var(--gold);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* selection */
+::selection {
+  background: rgba(201, 169, 97, 0.3);
+  color: var(--foreground);
+}
+
+/* scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(201, 169, 97, 0.18);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(201, 169, 97, 0.3);
+}
+
+/* date / time / select native picker styling */
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"],
+input[type="number"],
+input[type="text"],
+select,
+textarea {
+  color-scheme: dark;
+}
+
+/* number input arrows hide */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* recharts tooltip styling override */
+.recharts-default-tooltip {
+  background: var(--surface-elevated) !important;
+  border: 1px solid var(--border-strong) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6) !important;
+  font-family: var(--font-sans) !important;
+  font-size: 12px !important;
+  padding: 10px 14px !important;
+}
+.recharts-tooltip-label {
+  color: var(--foreground-muted) !important;
+  font-size: 11px !important;
+  letter-spacing: 0.05em !important;
+  text-transform: uppercase !important;
+  margin-bottom: 4px !important;
+}
+.recharts-tooltip-item {
+  color: var(--foreground) !important;
+  font-variant-numeric: tabular-nums !important;
 }
