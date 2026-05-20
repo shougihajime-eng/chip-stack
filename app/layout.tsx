@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Playfair_Display, Inter_Tight, JetBrains_Mono } from "next/font/google";
+import { Playfair_Display, Inter_Tight, Cormorant_Garamond } from "next/font/google";
 import "./globals.css";
 import { AppShell } from "@/components/layout/AppShell";
 
@@ -17,10 +17,10 @@ const interTight = Inter_Tight({
   display: "swap",
 });
 
-const jetbrains = JetBrains_Mono({
-  variable: "--font-mono",
+const cormorant = Cormorant_Garamond({
+  variable: "--font-numeric",
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: ["400", "500", "600", "700"],
   display: "swap",
 });
 
@@ -43,7 +43,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0a0e0d",
+  themeColor: "#08120e",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -58,7 +58,7 @@ export default function RootLayout({
   return (
     <html
       lang="ja"
-      className={`${playfair.variable} ${interTight.variable} ${jetbrains.variable} h-full antialiased`}
+      className={`${playfair.variable} ${interTight.variable} ${cormorant.variable} h-full antialiased`}
     >
       <body className="min-h-dvh">
         <AppShell>{children}</AppShell>

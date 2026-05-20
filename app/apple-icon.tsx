@@ -10,31 +10,54 @@ export default function AppleIcon() {
         style={{
           width: "100%",
           height: "100%",
-          background: "radial-gradient(circle at 50% 35%, #1a3a2e 0%, #0a0e0d 70%)",
+          background: "radial-gradient(circle at 50% 35%, #0d4a2f 0%, #051a10 75%)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          fontFamily: "serif",
         }}
       >
         <div
           style={{
-            width: 132,
-            height: 132,
+            width: 156,
+            height: 156,
             borderRadius: "50%",
-            border: "3px solid rgba(201, 169, 97, 0.55)",
-            background:
-              "radial-gradient(circle at 50% 40%, rgba(201,169,97,0.18) 0%, rgba(15,61,46,0.4) 60%, rgba(10,14,13,0.6) 100%)",
+            background: "#d4ad5f",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            color: "#e4c987",
-            fontSize: 78,
-            fontWeight: 600,
-            letterSpacing: -2,
           }}
         >
-          CL
+          <div
+            style={{
+              width: 142,
+              height: 142,
+              borderRadius: "50%",
+              background: "#062815",
+              border: "3px solid #6b5630",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <div
+              style={{
+                width: 122,
+                height: 122,
+                borderRadius: "50%",
+                background: "linear-gradient(180deg, #156a44 0%, #0c4d31 50%, #062815 100%)",
+                border: "2px solid #d4ad5f",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#f0d088",
+                fontFamily: "serif",
+                fontSize: 80,
+                fontWeight: 700,
+              }}
+            >
+              ♠
+            </div>
+          </div>
         </div>
       </div>
     ),

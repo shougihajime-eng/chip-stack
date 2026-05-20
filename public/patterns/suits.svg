@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240">
+  <g fill="#d4ad5f">
+    <!-- Spade (top-left) -->
+    <g transform="translate(40, 40)">
+      <path d="M0 -22 C -12 -10, -20 -2, -20 8 C -20 16, -14 21, -8 21 C -4 21, -1 19, 0 17 L -2 28 L 2 28 L 0 17 C 1 19, 4 21, 8 21 C 14 21, 20 16, 20 8 C 20 -2, 12 -10, 0 -22 Z"/>
+    </g>
+    <!-- Heart (top-right) -->
+    <g transform="translate(160, 40)">
+      <path d="M0 -10 C -8 -20, -22 -16, -22 -2 C -22 12, 0 24, 0 24 C 0 24, 22 12, 22 -2 C 22 -16, 8 -20, 0 -10 Z"/>
+    </g>
+    <!-- Diamond (bottom-left) -->
+    <g transform="translate(40, 160)">
+      <path d="M0 -24 L -16 0 L 0 24 L 16 0 Z"/>
+    </g>
+    <!-- Club (bottom-right) -->
+    <g transform="translate(160, 160)">
+      <circle cx="0" cy="-12" r="9"/>
+      <circle cx="-10" cy="4" r="9"/>
+      <circle cx="10" cy="4" r="9"/>
+      <path d="M-3 4 L -1 22 L 1 22 L 3 4 Z"/>
+    </g>
+  </g>
+</svg>

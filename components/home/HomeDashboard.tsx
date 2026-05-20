@@ -77,16 +77,29 @@ export function HomeDashboard() {
   return (
     <div className="space-y-6">
       {/* Hero - cumulative P/L */}
-      <section className="relative overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-felt/40 via-surface/40 to-background backdrop-blur-sm">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(201,169,97,0.08),transparent_60%)]" />
+      <section className="relative overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-felt/55 via-felt-deep/50 to-background card-edge">
+        {/* Decorative card suits in the background */}
+        <div className="pointer-events-none absolute inset-0 select-none overflow-hidden">
+          <SpadeShape className="absolute -right-12 -top-10 h-56 w-56 text-gold/[0.08] sm:-right-6 sm:-top-6 sm:h-72 sm:w-72" />
+          <DiamondShape className="absolute -bottom-14 -left-8 h-40 w-40 text-gold/[0.06] sm:h-56 sm:w-56" />
+        </div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(212,173,95,0.1),transparent_60%)]" />
+        {/* Top gold filigree line */}
+        <div className="absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-gold/60 to-transparent" />
+
         <div className="relative px-6 pt-10 pb-12 sm:px-10 sm:pt-14 sm:pb-16">
-          <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-gold">Total P/L</p>
-          <div className="mt-3">
+          <div className="flex items-center gap-2.5">
+            <span aria-hidden className="text-gold/80">♠</span>
+            <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-gold">Total P/L</p>
+            <span aria-hidden className="text-gold/80">♥</span>
+          </div>
+          <div className="mt-4">
             <Money amount={stats.total} size="display" />
           </div>
-          <div className="mt-4 flex flex-wrap items-baseline gap-x-6 gap-y-2 text-[12px] text-muted">
+          <div className="mt-5 flex flex-wrap items-baseline gap-x-6 gap-y-2 text-[12px] text-muted">
             <span>
-              {stats.count} セッション · 勝率 <span className="font-numeric text-foreground">{stats.winRate}%</span>
+              <span className="font-numeric text-foreground">{stats.count}</span> セッション · 勝率{" "}
+              <span className="font-numeric text-foreground">{stats.winRate}%</span>
             </span>
             <span>
               平均 / 回:{" "}
@@ -176,6 +189,22 @@ function StatCard({
       </div>
       {sub && <p className="mt-1 text-[10px] text-subtle">{sub}</p>}
     </div>
+  );
+}
+
+function SpadeShape({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 100 100" className={className} fill="currentColor">
+      <path d="M50 8 C 30 28, 12 42, 12 60 C 12 74, 22 82, 34 82 C 42 82, 47 78, 50 74 L 46 96 L 54 96 L 50 74 C 53 78, 58 82, 66 82 C 78 82, 88 74, 88 60 C 88 42, 70 28, 50 8 Z" />
+    </svg>
+  );
+}
+
+function DiamondShape({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 100 100" className={className} fill="currentColor">
+      <path d="M50 6 L 14 50 L 50 94 L 86 50 Z" />
+    </svg>
   );
 }
 

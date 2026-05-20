@@ -5,12 +5,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-dvh flex-col">
       <header className="sticky top-0 z-30 border-b border-border bg-background/70 backdrop-blur-xl">
+        {/* Gold filigree under header */}
+        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-gold/30 to-transparent" />
         <div className="mx-auto flex h-14 w-full max-w-5xl items-center justify-between px-5 sm:px-8">
           <Link href="/" className="group flex items-center gap-2.5">
-            <span className="grid h-7 w-7 place-items-center rounded-full border border-gold/40 bg-gradient-to-br from-gold/20 to-felt/30 text-[10px] tracking-widest text-gold transition-colors group-hover:border-gold/70">
-              CL
-            </span>
-            <span className="font-display text-[15px] font-medium tracking-wide text-foreground">
+            <ChipLogo />
+            <span className="font-display text-[16px] font-medium tracking-wide text-foreground">
               Casino <span className="text-gold">Ledger</span>
             </span>
           </Link>
@@ -28,6 +28,32 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       <BottomNav />
     </div>
+  );
+}
+
+function ChipLogo() {
+  return (
+    <span className="relative grid h-8 w-8 place-items-center transition-transform group-hover:scale-105">
+      <svg viewBox="0 0 32 32" className="absolute inset-0 h-full w-full">
+        {/* Outer ring with notches (chip edge) */}
+        <circle cx="16" cy="16" r="15" fill="#0c4d31" stroke="rgba(212,173,95,0.5)" strokeWidth="0.5" />
+        {/* Chip notches */}
+        {[0, 45, 90, 135, 180, 225, 270, 315].map((deg) => (
+          <rect
+            key={deg}
+            x="14.5"
+            y="0.5"
+            width="3"
+            height="3.5"
+            fill="rgba(212,173,95,0.9)"
+            transform={`rotate(${deg} 16 16)`}
+          />
+        ))}
+        {/* Inner felt circle */}
+        <circle cx="16" cy="16" r="10" fill="#062815" stroke="rgba(212,173,95,0.7)" strokeWidth="0.6" />
+      </svg>
+      <span className="relative z-10 font-display text-[13px] font-semibold text-gold-bright">♠</span>
+    </span>
   );
 }
 

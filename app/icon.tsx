@@ -10,32 +10,57 @@ export default function Icon() {
         style={{
           width: "100%",
           height: "100%",
-          background: "radial-gradient(circle at 50% 35%, #1a3a2e 0%, #0a0e0d 70%)",
+          background: "radial-gradient(circle at 50% 35%, #0d4a2f 0%, #051a10 75%)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          fontFamily: "serif",
         }}
       >
+        {/* Chip outer ring */}
         <div
           style={{
-            width: 360,
-            height: 360,
+            width: 440,
+            height: 440,
             borderRadius: "50%",
-            border: "8px solid rgba(201, 169, 97, 0.55)",
-            background:
-              "radial-gradient(circle at 50% 40%, rgba(201,169,97,0.18) 0%, rgba(15,61,46,0.4) 60%, rgba(10,14,13,0.6) 100%)",
+            background: "#d4ad5f",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            color: "#e4c987",
-            fontSize: 220,
-            fontWeight: 600,
-            letterSpacing: -8,
-            boxShadow: "inset 0 4px 20px rgba(228, 201, 135, 0.18)",
           }}
         >
-          CL
+          {/* Mid ring */}
+          <div
+            style={{
+              width: 400,
+              height: 400,
+              borderRadius: "50%",
+              background: "#062815",
+              border: "8px solid #6b5630",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            {/* Inner felt */}
+            <div
+              style={{
+                width: 340,
+                height: 340,
+                borderRadius: "50%",
+                background: "linear-gradient(180deg, #156a44 0%, #0c4d31 50%, #062815 100%)",
+                border: "6px solid #d4ad5f",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#f0d088",
+                fontFamily: "serif",
+                fontSize: 230,
+                fontWeight: 700,
+              }}
+            >
+              ♠
+            </div>
+          </div>
         </div>
       </div>
     ),

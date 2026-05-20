@@ -13,11 +13,11 @@ export function Money({
   className?: string;
 }) {
   const sizeClass = {
-    sm: "text-sm",
-    md: "text-lg",
-    lg: "text-2xl",
-    xl: "text-4xl",
-    display: "text-5xl sm:text-6xl",
+    sm: "text-sm font-medium",
+    md: "text-xl font-medium",
+    lg: "text-3xl font-semibold tracking-tight",
+    xl: "text-5xl font-semibold tracking-tight",
+    display: "text-6xl sm:text-7xl font-semibold tracking-tighter",
   }[size];
 
   const tone =
@@ -26,7 +26,7 @@ export function Money({
   return (
     <span
       className={cn(
-        "font-numeric tabular font-medium",
+        "font-numeric inline-block",
         sizeClass,
         signed ? tone : "text-foreground",
         className,

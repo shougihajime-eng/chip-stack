@@ -1,33 +1,40 @@
 @import "tailwindcss";
 
 :root {
-  /* base surfaces */
-  --background: #0a0e0d;
-  --surface: #131918;
-  --surface-elevated: #1c2422;
-  --surface-overlay: #232c2a;
-  --felt: #0f3d2e;
+  /* base surfaces — stronger felt-green tinted */
+  --background: #08120e;
+  --surface: #0e2018;
+  --surface-elevated: #143025;
+  --surface-overlay: #1e4232;
+  --felt: #0c4d31;
+  --felt-deep: #062815;
+  --felt-bright: #156a44;
 
   /* text */
-  --foreground: #f5f1e8;
-  --foreground-muted: #9c948a;
-  --foreground-subtle: #5f5a52;
+  --foreground: #f5ecd4;
+  --foreground-muted: #b9ab8b;
+  --foreground-subtle: #756e5a;
 
-  /* gold accents */
-  --gold: #c9a961;
-  --gold-bright: #e4c987;
-  --gold-dim: #897547;
+  /* gold accents — richer, more casino-luxurious */
+  --gold: #d4ad5f;
+  --gold-bright: #f0d088;
+  --gold-dim: #8a7240;
+  --gold-deep: #6b5630;
 
   /* data colors */
-  --profit: #34b27d;
-  --profit-bg: rgba(52, 178, 125, 0.1);
-  --loss: #c14a5a;
-  --loss-bg: rgba(193, 74, 90, 0.1);
+  --profit: #3dd185;
+  --profit-bg: rgba(61, 209, 133, 0.12);
+  --loss: #d8475a;
+  --loss-bg: rgba(216, 71, 90, 0.12);
 
   /* borders */
-  --border: rgba(201, 169, 97, 0.14);
-  --border-strong: rgba(201, 169, 97, 0.28);
-  --border-subtle: rgba(245, 241, 232, 0.06);
+  --border: rgba(212, 173, 95, 0.2);
+  --border-strong: rgba(212, 173, 95, 0.42);
+  --border-subtle: rgba(245, 236, 212, 0.07);
+
+  /* card suit colors */
+  --suit-red: #c8364a;
+  --suit-black: #0d1816;
 }
 
 @theme inline {
@@ -36,6 +43,8 @@
   --color-surface-elevated: var(--surface-elevated);
   --color-surface-overlay: var(--surface-overlay);
   --color-felt: var(--felt);
+  --color-felt-deep: var(--felt-deep);
+  --color-felt-bright: var(--felt-bright);
 
   --color-foreground: var(--foreground);
   --color-muted: var(--foreground-muted);
@@ -44,6 +53,7 @@
   --color-gold: var(--gold);
   --color-gold-bright: var(--gold-bright);
   --color-gold-dim: var(--gold-dim);
+  --color-gold-deep: var(--gold-deep);
 
   --color-profit: var(--profit);
   --color-loss: var(--loss);
@@ -54,9 +64,11 @@
   --color-border-strong: var(--border-strong);
   --color-border-subtle: var(--border-subtle);
 
+  --color-suit-red: var(--suit-red);
+
   --font-display: var(--font-display);
   --font-sans: var(--font-sans);
-  --font-mono: var(--font-mono);
+  --font-numeric: var(--font-numeric);
 }
 
 html,
@@ -69,10 +81,13 @@ html {
 }
 
 body {
+  /* Casino felt-table background — deep green, vignette, gold glow */
   background:
-    radial-gradient(ellipse 90% 50% at 50% -10%, rgba(15, 61, 46, 0.22), transparent 60%),
-    radial-gradient(ellipse 60% 40% at 100% 110%, rgba(201, 169, 97, 0.06), transparent 70%),
-    var(--background);
+    radial-gradient(ellipse 110% 65% at 50% -5%, rgba(21, 106, 68, 0.4), transparent 55%),
+    radial-gradient(ellipse 80% 60% at 50% 100%, rgba(12, 77, 49, 0.45), transparent 60%),
+    radial-gradient(ellipse 50% 40% at 100% 20%, rgba(212, 173, 95, 0.08), transparent 70%),
+    radial-gradient(ellipse 50% 40% at 0% 80%, rgba(212, 173, 95, 0.05), transparent 70%),
+    linear-gradient(180deg, #08120e 0%, #0a1814 50%, #08120e 100%);
   background-attachment: fixed;
   color: var(--foreground);
   font-family: var(--font-sans), system-ui, sans-serif;
@@ -81,18 +96,30 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* subtle felt texture overlay */
+/* Card suit pattern overlay — visible casino atmosphere */
 body::before {
   content: "";
   position: fixed;
   inset: 0;
   pointer-events: none;
-  background-image:
-    radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.012) 1px, transparent 1px),
-    radial-gradient(circle at 70% 70%, rgba(0, 0, 0, 0.12) 1px, transparent 1px);
-  background-size: 5px 5px, 7px 7px;
   z-index: 0;
-  opacity: 0.6;
+  background-image: url("/patterns/suits.svg");
+  background-size: 200px 200px;
+  opacity: 0.06;
+  mix-blend-mode: screen;
+}
+
+/* Felt texture noise overlay */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image: url("/patterns/felt.svg");
+  background-size: 60px 60px;
+  opacity: 0.45;
+  mix-blend-mode: overlay;
 }
 
 main {
@@ -100,21 +127,22 @@ main {
   z-index: 1;
 }
 
-/* tabular numerals helper */
-.tabular {
-  font-variant-numeric: tabular-nums;
-  font-feature-settings: "tnum";
-}
-
+/* Numerals — elegant serif with tabular figures, NO slashed zero */
 .font-numeric {
-  font-family: var(--font-mono), ui-monospace, monospace;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.01em;
+  font-family: var(--font-numeric), Georgia, "Times New Roman", serif;
+  font-variant-numeric: lining-nums tabular-nums;
+  font-feature-settings: "lnum", "tnum";
+  letter-spacing: -0.005em;
 }
 
 .font-display {
   font-family: var(--font-display), Georgia, serif;
   letter-spacing: -0.015em;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
 }
 
 /* focus styling */
@@ -126,7 +154,7 @@ main {
 
 /* selection */
 ::selection {
-  background: rgba(201, 169, 97, 0.3);
+  background: rgba(212, 173, 95, 0.32);
   color: var(--foreground);
 }
 
@@ -139,14 +167,14 @@ main {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(201, 169, 97, 0.18);
+  background: rgba(212, 173, 95, 0.22);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(201, 169, 97, 0.3);
+  background: rgba(212, 173, 95, 0.36);
 }
 
-/* date / time / select native picker styling */
+/* form inputs - dark scheme native picker */
 input[type="date"],
 input[type="time"],
 input[type="datetime-local"],
@@ -172,7 +200,7 @@ input[type="number"] {
   background: var(--surface-elevated) !important;
   border: 1px solid var(--border-strong) !important;
   border-radius: 12px !important;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6) !important;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7) !important;
   font-family: var(--font-sans) !important;
   font-size: 12px !important;
   padding: 10px 14px !important;
@@ -186,5 +214,25 @@ input[type="number"] {
 }
 .recharts-tooltip-item {
   color: var(--foreground) !important;
+  font-family: var(--font-numeric) !important;
   font-variant-numeric: tabular-nums !important;
+}
+
+/* casino-style decorative divider */
+.felt-edge {
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(212, 173, 95, 0.15) 50%,
+    transparent
+  );
+  height: 1px;
+}
+
+/* subtle card-table inner border glow */
+.card-edge {
+  box-shadow:
+    inset 0 1px 0 rgba(212, 173, 95, 0.08),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.3),
+    0 1px 0 rgba(0, 0, 0, 0.5);
 }
