@@ -1,18 +1,70 @@
 "use client";
 
+import { useMemo } from "react";
 import { formatJpy } from "@/lib/currency";
 
 /**
  * Full-screen overlay shown after saving a session.
  * A casino chip "drops in" with the recorded P/L stamped on it.
+ * Surrounded by a burst of gold confetti.
  */
 export function ChipDrop({ amount }: { amount: number }) {
   const tone =
     amount > 0 ? "text-profit" : amount < 0 ? "text-loss" : "text-foreground";
 
+  // 28 confetti chips, deterministic so SSR/CSR match.
+  const confetti = useMemo(() => {
+    return Array.from({ length: 28 }).map((_, i) => {
+      const seed = (i * 2654435761) >>> 0;
+      const r1 = (seed % 1000) / 1000;
+      const r2 = ((seed >> 8) % 1000) / 1000;
+      const r3 = ((seed >> 16) % 1000) / 1000;
+      const r4 = ((seed >> 4) % 1000) / 1000;
+      const r5 = ((seed >> 12) % 1000) / 1000;
+      const colors = ["#f0d088", "#d8475a", "#3dd185", "#4a8cd8", "#a464d8"];
+      return {
+        angle: r1 * 360,
+        distance: 180 + r2 * 220,
+        size: 8 + r3 * 12,
+        delay: r4 * 220,
+        rot: (r5 - 0.5) * 720,
+        color: colors[i % colors.length],
+      };
+    });
+  }, []);
+
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-background/65 backdrop-blur-sm animate-overlay-fade">
-      <div className="animate-chip-drop">
+      {/* Confetti burst */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute left-1/2 top-1/2">
+          {confetti.map((c, i) => {
+            const rad = (c.angle * Math.PI) / 180;
+            const tx = Math.cos(rad) * c.distance;
+            const ty = Math.sin(rad) * c.distance;
+            return (
+              <span
+                key={i}
+                className="absolute rounded-full"
+                style={{
+                  left: 0,
+                  top: 0,
+                  width: c.size,
+                  height: c.size,
+                  background: c.color,
+                  boxShadow: `0 0 ${c.size}px ${c.color}77`,
+                  ["--cf-tx" as string]: `${tx}px`,
+                  ["--cf-ty" as string]: `${ty}px`,
+                  ["--cf-rot" as string]: `${c.rot}deg`,
+                  animation: `confetti-burst 1100ms cubic-bezier(0.16, 1, 0.3, 1) ${c.delay}ms both`,
+                }}
+              />
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="animate-chip-drop relative">
         <div
           className="relative grid h-56 w-56 place-items-center rounded-full sm:h-64 sm:w-64"
           style={{
@@ -42,6 +94,22 @@ export function ChipDrop({ amount }: { amount: number }) {
           </div>
         </div>
       </div>
+
+      <style>{`
+        @keyframes confetti-burst {
+          0% {
+            opacity: 0;
+            transform: translate(0, 0) rotate(0deg) scale(0.4);
+          }
+          15% {
+            opacity: 1;
+          }
+          100% {
+            opacity: 0;
+            transform: translate(var(--cf-tx, 0), var(--cf-ty, 0)) rotate(var(--cf-rot, 0deg)) scale(1);
+          }
+        }
+      `}</style>
     </div>
   );
 }

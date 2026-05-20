@@ -19,6 +19,8 @@ interface CloudSession {
   pnl_local: number;
   pnl_jpy: number;
   duration_minutes: number | null;
+  reentries: number | null;
+  tourney_title: string | null;
   tourney_place: number | null;
   tourney_entrants: number | null;
   memo: string | null;
@@ -41,6 +43,8 @@ function toCloudPayload(s: Session, userId: string) {
     pnl_local: s.pnlLocal,
     pnl_jpy: s.pnlJpy,
     duration_minutes: s.durationMinutes ?? null,
+    reentries: s.reentries ?? null,
+    tourney_title: s.tourneyTitle ?? null,
     tourney_place: s.tourneyPlace ?? null,
     tourney_entrants: s.tourneyEntrants ?? null,
     memo: s.memo ?? null,
@@ -63,6 +67,8 @@ function fromCloud(c: CloudSession): Omit<Session, "id"> {
     pnlLocal: Number(c.pnl_local),
     pnlJpy: Number(c.pnl_jpy),
     durationMinutes: c.duration_minutes,
+    reentries: c.reentries ?? null,
+    tourneyTitle: c.tourney_title ?? null,
     tourneyPlace: c.tourney_place,
     tourneyEntrants: c.tourney_entrants,
     memo: c.memo ?? "",

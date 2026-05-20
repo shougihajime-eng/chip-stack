@@ -21,6 +21,8 @@ const HEADERS = [
   "参加人数",
   "メモ",
   "記録日時",
+  "大会タイトル",
+  "リエントリー回数",
 ] as const;
 
 /**
@@ -151,7 +153,7 @@ export function parseSessionsCsv(text: string): ImportPreview {
     if (r.every((c) => c.trim() === "")) continue; // skip blank rows
     const errors: string[] = [];
 
-    const [playDate, gameLabel, formatLabel, countryLabel, venue, currencyLabel, buyInS, cashOutS, fxRateS, , , durationS, placeS, entrantsS, memo, createdAtS] = r;
+    const [playDate, gameLabel, formatLabel, countryLabel, venue, currencyLabel, buyInS, cashOutS, fxRateS, , , durationS, placeS, entrantsS, memo, createdAtS, tourneyTitleS, reentriesS] = r;
 
     if (!playDate || !/^\d{4}-\d{2}-\d{2}/.test(playDate)) errors.push("日付の形式が正しくありません");
     if (!venue) errors.push("カジノ・店舗名が空です");
@@ -159,7 +161,9 @@ export function parseSessionsCsv(text: string): ImportPreview {
     const buyIn = num(buyInS ?? "0");
     const cashOut = num(cashOutS ?? "0");
     const fxRate = num(fxRateS ?? "1") || 1;
-    const pnlLocal = cashOut - buyIn;
+    const reentries = Math.max(0, Math.floor(num(reentriesS ?? "0")));
+    const totalBuyIn = buyIn * (1 + reentries);
+    const pnlLocal = cashOut - totalBuyIn;
     const pnlJpy = Math.round(pnlLocal * fxRate);
 
     const now = new Date().toISOString();
@@ -184,6 +188,8 @@ export function parseSessionsCsv(text: string): ImportPreview {
       pnlLocal,
       pnlJpy,
       durationMinutes: nullableNum(durationS),
+      reentries: reentries > 0 ? reentries : null,
+      tourneyTitle: tourneyTitleS && tourneyTitleS.trim() ? tourneyTitleS.trim() : null,
       tourneyPlace: nullableNum(placeS),
       tourneyEntrants: nullableNum(entrantsS),
       memo: memo ?? "",

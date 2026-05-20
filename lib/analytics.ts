@@ -138,7 +138,8 @@ export function computeTournamentRoi(sessions: Session[]): TournamentRoi {
   let returnJpy = 0;
   let itm = 0;
   for (const s of tournies) {
-    const buyJpy = Math.round(s.buyIn * s.fxRate);
+    const totalBuyIn = s.buyIn * (1 + (s.reentries ?? 0));
+    const buyJpy = Math.round(totalBuyIn * s.fxRate);
     const outJpy = Math.round(s.cashOut * s.fxRate);
     buyInJpy += buyJpy;
     returnJpy += outJpy;

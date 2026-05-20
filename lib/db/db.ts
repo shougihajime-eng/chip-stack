@@ -17,6 +17,16 @@ export class CasinoLedgerDB extends Dexie {
       sessions: "++id, playDate, game, format, country, currency, pnlJpy, createdAt, cloudId, syncedAt",
       venues: "++id, country, name, favorite, lastUsedAt",
     });
+    // v3: add tourney_title + reentries (non-indexed fields; just bumps schema for type safety)
+    this.version(3).stores({
+      sessions: "++id, playDate, game, format, country, currency, pnlJpy, createdAt, cloudId, syncedAt",
+      venues: "++id, country, name, favorite, lastUsedAt",
+    }).upgrade(async (tx) => {
+      await tx.table("sessions").toCollection().modify((s) => {
+        if (s.reentries == null) s.reentries = 0;
+        if (s.tourneyTitle == null) s.tourneyTitle = null;
+      });
+    });
   }
 }
 

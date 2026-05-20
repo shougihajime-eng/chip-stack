@@ -6,11 +6,12 @@ import { useLiveQuery } from "dexie-react-hooks";
 
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Money } from "@/components/ui/Money";
-import { PlayingCard } from "@/components/ui/PlayingCard";
-import { AnimatedJpy, CountUp } from "@/components/ui/CountUp";
+import { Chip } from "@/components/ui/ChipStack";
 import { MonthlyChart } from "@/components/charts/MonthlyChart";
 import { BreakdownChart, buildGameBuckets, buildVenueBuckets } from "@/components/charts/BreakdownChart";
 import { AnalyticsCards } from "./AnalyticsCards";
+import { HeroTable } from "./HeroTable";
+import { CasinoTicker } from "./CasinoTicker";
 import { listSessions } from "@/lib/db/sessions";
 import type { Session } from "@/lib/db/schema";
 import { formatCurrency } from "@/lib/currency";
@@ -73,7 +74,7 @@ function computeStats(sessions: Session[]) {
 export function HomeDashboard() {
   const sessions = useLiveQuery(() => listSessions(), [], undefined);
   const stats = useMemo(() => computeStats(sessions ?? []), [sessions]);
-  const recent = useMemo(() => (sessions ?? []).slice(0, 5), [sessions]);
+  const recent = useMemo(() => (sessions ?? []).slice(0, 6), [sessions]);
   const gameBuckets = useMemo(
     () => buildGameBuckets(sessions ?? [], getGameLabel as (code: string) => string),
     [sessions],
@@ -84,139 +85,48 @@ export function HomeDashboard() {
     return <div className="px-1 py-16 text-center text-sm text-muted">読み込み中...</div>;
   }
 
-  const totalTone =
-    stats.total > 0 ? "text-profit" : stats.total < 0 ? "text-loss" : "text-foreground";
-
   return (
-    <div className="space-y-6">
-      {/* HERO — poker table */}
-      <section className="relative overflow-hidden rounded-3xl border border-border-strong animate-hero-glow">
-        {/* Felt base */}
-        <div className="absolute inset-0 bg-gradient-to-br from-felt-bright/25 via-felt/45 to-felt-deep/70" />
-        {/* Top spotlight */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_80%_at_50%_-10%,rgba(240,208,136,0.16),transparent_55%)]" />
-        {/* Inner gold stitching top & bottom */}
-        <div className="absolute inset-x-8 top-3 h-px bg-gradient-to-r from-transparent via-gold/60 to-transparent" />
-        <div className="absolute inset-x-8 bottom-3 h-px bg-gradient-to-r from-transparent via-gold/50 to-transparent" />
-        {/* Side filigree */}
-        <div className="absolute inset-y-8 left-3 w-px bg-gradient-to-b from-transparent via-gold/35 to-transparent" />
-        <div className="absolute inset-y-8 right-3 w-px bg-gradient-to-b from-transparent via-gold/35 to-transparent" />
+    <div className="space-y-8">
+      {/* HERO — cinematic poker table */}
+      <HeroTable
+        total={stats.total}
+        count={stats.count}
+        winRate={stats.winRate}
+        avg={stats.avg}
+        thisMonth={stats.thisMonth}
+        thisMonthCount={stats.thisMonthCount}
+        thisYear={stats.thisYear}
+      />
 
-        <div className="relative px-3 py-10 sm:px-10 sm:py-16">
-          <div className="flex items-center justify-center gap-3 sm:gap-10">
-            {/* Left card — Ace of Spades */}
-            <div className="shrink-0">
-              <PlayingCard
-                rank="A"
-                suit="♠"
-                tilt={-9}
-                size="md"
-                className="sm:hidden"
-                flipIn
-                flipDelay={0}
-              />
-              <PlayingCard
-                rank="A"
-                suit="♠"
-                tilt={-9}
-                size="lg"
-                className="hidden sm:block xl:hidden"
-                flipIn
-                flipDelay={0}
-              />
-              <PlayingCard
-                rank="A"
-                suit="♠"
-                tilt={-9}
-                size="xl"
-                className="hidden xl:block"
-                flipIn
-                flipDelay={0}
-              />
-            </div>
-
-            {/* Center: number stack */}
-            <div className="flex min-w-0 flex-col items-center text-center animate-number-rise">
-              <div className="flex items-center gap-2.5">
-                <span aria-hidden className="text-gold/70">♠</span>
-                <p className="text-[10px] font-medium uppercase tracking-[0.32em] text-gold sm:text-[11px]">
-                  Total P/L
-                </p>
-                <span aria-hidden className="text-suit-red/70">♥</span>
-              </div>
-              <div
-                className={cn(
-                  "font-numeric mt-3 text-4xl font-semibold tracking-tight sm:text-6xl xl:text-7xl",
-                  totalTone,
-                )}
-                style={{ textShadow: "0 2px 12px rgba(0,0,0,0.4)" }}
-              >
-                <AnimatedJpy amount={stats.total} durationMs={1200} />
-              </div>
-              <p className="font-numeric mt-3 text-[11px] tracking-wide text-muted sm:text-[13px]">
-                <CountUp value={stats.count} durationMs={900} /> セッション · 勝率{" "}
-                <span className="text-foreground">{stats.winRate}%</span>
-              </p>
-              <p className="font-numeric text-[11px] tracking-wide text-muted sm:text-[13px]">
-                平均/回: {stats.avg >= 0 ? "+" : "−"}¥{Math.abs(stats.avg).toLocaleString("ja-JP")}
-              </p>
-            </div>
-
-            {/* Right card — Ace of Hearts */}
-            <div className="shrink-0">
-              <PlayingCard
-                rank="A"
-                suit="♥"
-                tilt={9}
-                size="md"
-                className="sm:hidden"
-                flipIn
-                flipDelay={140}
-              />
-              <PlayingCard
-                rank="A"
-                suit="♥"
-                tilt={9}
-                size="lg"
-                className="hidden sm:block xl:hidden"
-                flipIn
-                flipDelay={140}
-              />
-              <PlayingCard
-                rank="A"
-                suit="♥"
-                tilt={9}
-                size="xl"
-                className="hidden xl:block"
-                flipIn
-                flipDelay={140}
-              />
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Casino ticker — flavor marquee (PC only) */}
+      <CasinoTicker sessions={sessions} />
 
       {/* Quick stats row */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <StatCard label="今月" value={stats.thisMonth} sub={`${stats.thisMonthCount} 回`} />
-        <StatCard label="今年" value={stats.thisYear} />
-        <StatCard label="最大の勝ち" value={stats.bestWin} tone="profit" />
-        <StatCard label="最大の負け" value={stats.worstLoss} tone="loss" />
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-5">
+        <ChipStatCard label="今月" value={stats.thisMonth} sub={`${stats.thisMonthCount} 回`} chip="green" delay={0} />
+        <ChipStatCard label="今年" value={stats.thisYear} chip="blue" delay={80} />
+        <ChipStatCard label="最大の勝ち" value={stats.bestWin} tone="profit" chip="gold" delay={160} />
+        <ChipStatCard label="最大の負け" value={stats.worstLoss} tone="loss" chip="red" delay={240} />
       </div>
 
-      {/* Chart */}
-      <Card>
-        <CardHeader>
-          <CardTitle>累積収支の推移</CardTitle>
-          <span className="text-[11px] text-subtle">月次</span>
-        </CardHeader>
-        <CardBody>
-          <MonthlyChart sessions={sessions} />
-        </CardBody>
-      </Card>
+      {/* MAIN GRID — chart + analytics side-by-side on PC */}
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1.55fr_1fr]">
+        {/* Cumulative chart */}
+        <Card>
+          <CardHeader>
+            <CardTitle>累積収支の推移</CardTitle>
+            <span className="text-[11px] text-subtle">月次</span>
+          </CardHeader>
+          <CardBody>
+            <MonthlyChart sessions={sessions} />
+          </CardBody>
+        </Card>
 
-      {/* Advanced analytics */}
-      <AnalyticsCards sessions={sessions} />
+        {/* Analytics column */}
+        <div className="space-y-6">
+          <AnalyticsCards sessions={sessions} />
+        </div>
+      </div>
 
       {/* Breakdown charts */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
@@ -255,22 +165,22 @@ export function HomeDashboard() {
         </CardHeader>
         <CardBody className="px-0 sm:px-0">
           {recent.length === 0 ? (
-            <div className="px-6 py-10 text-center">
-              <p className="font-display text-lg text-foreground">記録の最初の1ページへ</p>
+            <div className="px-6 py-14 text-center">
+              <p className="font-display text-xl text-foreground">記録の最初の1ページへ</p>
               <p className="mt-2 text-sm text-muted">
-                右上の「新規」から、はじめてのセッションを刻みましょう。
+                右上の「新規セッション」から、はじめての一局を刻みましょう。
               </p>
               <Link
                 href="/sessions/new"
-                className="btn-chip mt-5 inline-flex h-10 items-center rounded-full border border-gold/50 bg-gradient-to-b from-gold/25 to-gold/8 px-5 text-sm font-medium tracking-wide text-gold-bright"
+                className="btn-chip animate-gold-ring mt-6 inline-flex h-11 items-center rounded-full border border-gold/60 bg-gradient-to-b from-gold/30 to-gold/10 px-6 text-sm font-medium tracking-wide text-gold-bright"
               >
                 セッションを追加
               </Link>
             </div>
           ) : (
             <ul className="divide-y divide-border-subtle">
-              {recent.map((s) => (
-                <RecentRow key={s.id} session={s} />
+              {recent.map((s, i) => (
+                <RecentRow key={s.id} session={s} delay={i * 50} />
               ))}
             </ul>
           )}
@@ -280,66 +190,99 @@ export function HomeDashboard() {
   );
 }
 
-function StatCard({
+function ChipStatCard({
   label,
   value,
   sub,
   tone,
+  chip,
+  delay,
 }: {
   label: string;
   value: number;
   sub?: string;
   tone?: "profit" | "loss";
+  chip: "red" | "blue" | "green" | "gold";
+  delay: number;
 }) {
   return (
-    <div className="rounded-2xl border border-border bg-surface/55 p-4">
-      <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-muted">{label}</p>
-      <div className="mt-1.5">
-        <Money
-          amount={value}
-          size="md"
-          signed={!tone}
-          className={tone === "profit" ? "text-profit" : tone === "loss" ? "text-loss" : ""}
-        />
+    <div
+      className="group animate-tile-pop relative overflow-hidden rounded-2xl border border-border bg-surface/60 p-4 transition-all hover:border-gold/40 hover:bg-surface-elevated/60 sm:p-5"
+      style={{ animationDelay: `${delay}ms` }}
+    >
+      {/* Subtle felt overlay */}
+      <div
+        className="pointer-events-none absolute inset-0 opacity-0 transition-opacity group-hover:opacity-100"
+        style={{
+          background:
+            "radial-gradient(ellipse 70% 60% at 100% 0%, rgba(240,208,136,0.12), transparent 60%)",
+        }}
+      />
+      <div className="relative flex items-start justify-between gap-2">
+        <div className="min-w-0 flex-1">
+          <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-muted">{label}</p>
+          <div className="mt-2">
+            <Money
+              amount={value}
+              size="lg"
+              signed={!tone}
+              className={tone === "profit" ? "text-profit" : tone === "loss" ? "text-loss" : ""}
+            />
+          </div>
+          {sub && <p className="mt-1 text-[10px] text-subtle">{sub}</p>}
+        </div>
+        <div className="shrink-0 transition-transform duration-500 group-hover:rotate-[18deg] group-hover:scale-110">
+          <Chip color={chip} size={42} />
+        </div>
       </div>
-      {sub && <p className="mt-1 text-[10px] text-subtle">{sub}</p>}
     </div>
   );
 }
 
-function RecentRow({ session }: { session: Session }) {
+function RecentRow({ session, delay }: { session: Session; delay: number }) {
   const country = getCountry(session.country);
   return (
-    <li>
+    <li className="animate-row-rise" style={{ animationDelay: `${delay}ms` }}>
       <Link
         href={`/sessions/${session.id}`}
-        className="flex items-center gap-4 px-6 py-3.5 transition-colors hover:bg-surface/60"
+        className="group flex items-center gap-4 px-6 py-4 transition-colors hover:bg-surface/60"
       >
-        <div className="flex h-10 w-10 shrink-0 flex-col items-center justify-center rounded-lg border border-border-subtle bg-felt/30">
-          <span className="text-[8px] uppercase tracking-wider text-gold/70">
+        <div className="relative flex h-12 w-12 shrink-0 flex-col items-center justify-center rounded-xl border border-border-subtle bg-felt/40 text-center transition-transform group-hover:scale-105">
+          <span className="text-[9px] uppercase tracking-wider text-gold/80">
             {new Date(session.playDate).toLocaleDateString("en-US", { month: "short" })}
           </span>
-          <span className="font-display text-sm leading-none text-foreground">
+          <span className="font-display text-base leading-none text-foreground">
             {new Date(session.playDate).getDate()}
           </span>
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5 truncate text-sm text-foreground">
-            <span className="truncate font-medium">{session.venue}</span>
-            <span className="shrink-0 text-[10px]">{country.flag}</span>
+            <span className="truncate font-medium">
+              {session.tourneyTitle?.trim() ? session.tourneyTitle : session.venue}
+            </span>
+            <span className="shrink-0 text-[12px]">{country.flag}</span>
           </div>
           <div className="text-[11px] text-muted">
             {getGameLabel(session.game)} · {FORMAT_LABEL[session.format]}
+            {session.reentries && session.reentries > 0 ? ` · ×${1 + session.reentries}` : ""}
           </div>
         </div>
         <div className="text-right">
-          <Money amount={session.pnlJpy} size="sm" />
+          <Money amount={session.pnlJpy} size="md" />
           {session.currency !== "JPY" && (
             <div className="font-numeric mt-0.5 text-[10px] text-subtle">
               {formatCurrency(session.pnlLocal, session.currency)}
             </div>
           )}
         </div>
+        <span
+          className={cn(
+            "ml-2 hidden text-[18px] text-gold/0 transition-all group-hover:text-gold/80 sm:inline",
+          )}
+          aria-hidden
+        >
+          →
+        </span>
       </Link>
     </li>
   );

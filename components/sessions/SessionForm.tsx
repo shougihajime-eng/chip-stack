@@ -33,6 +33,15 @@ const parseNumber = (raw: string): number => {
   return Number.isFinite(n) ? n : 0;
 };
 
+const DURATION_PRESETS: { label: string; minutes: number }[] = [
+  { label: "1h", minutes: 60 },
+  { label: "2h", minutes: 120 },
+  { label: "3h", minutes: 180 },
+  { label: "4h", minutes: 240 },
+  { label: "6h", minutes: 360 },
+  { label: "8h", minutes: 480 },
+];
+
 export function SessionForm({ initial }: Props) {
   const router = useRouter();
   const editing = !!initial?.id;
@@ -47,6 +56,8 @@ export function SessionForm({ initial }: Props) {
   const [cashOut, setCashOut] = useState<string>(initial ? String(initial.cashOut) : "");
   const [fxRate, setFxRate] = useState<string>(initial ? String(initial.fxRate) : "1");
   const [duration, setDuration] = useState<string>(initial?.durationMinutes ? String(initial.durationMinutes) : "");
+  const [reentries, setReentries] = useState<string>(initial?.reentries ? String(initial.reentries) : "");
+  const [tourneyTitle, setTourneyTitle] = useState<string>(initial?.tourneyTitle ?? "");
   const [place, setPlace] = useState<string>(initial?.tourneyPlace ? String(initial.tourneyPlace) : "");
   const [entrants, setEntrants] = useState<string>(initial?.tourneyEntrants ? String(initial.tourneyEntrants) : "");
   const [memo, setMemo] = useState(initial?.memo ?? "");
@@ -109,7 +120,9 @@ export function SessionForm({ initial }: Props) {
   const buyInNum = parseNumber(buyIn);
   const cashOutNum = parseNumber(cashOut);
   const rateNum = parseNumber(fxRate);
-  const pnlLocal = cashOutNum - buyInNum;
+  const reentryNum = format === "tournament" ? Math.max(0, Math.floor(parseNumber(reentries))) : 0;
+  const totalBuyInLocal = buyInNum * (1 + reentryNum);
+  const pnlLocal = cashOutNum - totalBuyInLocal;
   const pnlJpy = toJpy(pnlLocal, rateNum || 1);
 
   const canSave = playDate && venue.trim() && buyIn !== "" && cashOut !== "" && rateNum > 0 && !saving;
@@ -130,6 +143,8 @@ export function SessionForm({ initial }: Props) {
       cashOut: cashOutNum,
       fxRate: rateNum,
       durationMinutes: duration ? parseNumber(duration) : null,
+      reentries: format === "tournament" ? reentryNum : null,
+      tourneyTitle: format === "tournament" && tourneyTitle.trim() ? tourneyTitle.trim() : null,
       tourneyPlace: format === "tournament" && place ? parseNumber(place) : null,
       tourneyEntrants: format === "tournament" && entrants ? parseNumber(entrants) : null,
       memo: memo.trim(),
@@ -297,13 +312,83 @@ export function SessionForm({ initial }: Props) {
           </Field>
 
           <div className="grid grid-cols-2 gap-3">
-            <Field label="バイイン" hint={c.symbol} required>
+            <Field
+              label={format === "tournament" ? "バイイン（1回分）" : "バイイン"}
+              hint={c.symbol}
+              required
+            >
               <NumberInput value={buyIn} onChange={(e) => setBuyIn(e.target.value)} placeholder="0" required />
             </Field>
             <Field label="キャッシュアウト" hint={c.symbol} required>
-              <NumberInput value={cashOut} onChange={(e) => setCashOut(e.target.value)} placeholder="0" required />
+              <div className="space-y-2">
+                <NumberInput
+                  value={cashOut}
+                  onChange={(e) => setCashOut(e.target.value)}
+                  placeholder="0"
+                  required
+                />
+                {format === "tournament" && (
+                  <button
+                    type="button"
+                    onClick={() => setCashOut(cashOutNum === 0 && cashOut !== "" ? "" : "0")}
+                    aria-pressed={cashOutNum === 0 && cashOut !== ""}
+                    className={
+                      cashOutNum === 0 && cashOut !== ""
+                        ? "btn-chip inline-flex h-8 items-center gap-1.5 rounded-full border border-loss/60 bg-gradient-to-b from-loss/25 to-loss/5 px-3 text-[11px] font-medium tracking-wide text-loss"
+                        : "btn-chip inline-flex h-8 items-center gap-1.5 rounded-full border border-border bg-surface/50 px-3 text-[11px] font-medium tracking-wide text-muted hover:border-loss/40 hover:text-loss"
+                    }
+                  >
+                    <span aria-hidden>○</span>
+                    ノーマネーフィニッシュ
+                  </button>
+                )}
+              </div>
             </Field>
           </div>
+
+          {format === "tournament" && (
+            <Field
+              label="リエントリー回数（任意）"
+              hint={reentryNum > 0 ? `合計 ${1 + reentryNum} エントリー` : "0 = リエントリーなし"}
+            >
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setReentries(String(Math.max(0, reentryNum - 1)))
+                    }
+                    disabled={reentryNum === 0}
+                    className="btn-chip grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-border bg-surface/50 text-lg text-muted hover:border-gold/50 hover:text-gold-bright disabled:opacity-40"
+                    aria-label="リエントリー回数を減らす"
+                  >
+                    −
+                  </button>
+                  <NumberInput
+                    value={reentries}
+                    onChange={(e) => setReentries(e.target.value)}
+                    placeholder="0"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setReentries(String(reentryNum + 1))}
+                    className="btn-chip grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-border bg-surface/50 text-lg text-muted hover:border-gold/50 hover:text-gold-bright"
+                    aria-label="リエントリー回数を増やす"
+                  >
+                    ＋
+                  </button>
+                </div>
+                {reentryNum > 0 && (
+                  <p className="text-[11px] text-subtle">
+                    実投資額: {c.symbol}
+                    {totalBuyInLocal.toLocaleString("en-US", { maximumFractionDigits: 2 })}（{c.symbol}
+                    {buyInNum.toLocaleString("en-US", { maximumFractionDigits: 2 })} ×{" "}
+                    {1 + reentryNum} エントリー）
+                  </p>
+                )}
+              </div>
+            </Field>
+          )}
 
           {currency !== "JPY" && (
             <Field
@@ -374,14 +459,71 @@ export function SessionForm({ initial }: Props) {
             <div className="mt-1.5">
               <Money amount={pnlJpy} size="xl" />
             </div>
+            {format === "tournament" && reentryNum > 0 && (
+              <p className="mt-1.5 text-[10px] text-subtle">
+                計算: {c.symbol}
+                {cashOutNum.toLocaleString("en-US", { maximumFractionDigits: 2 })} −{" "}
+                {c.symbol}
+                {totalBuyInLocal.toLocaleString("en-US", { maximumFractionDigits: 2 })}
+              </p>
+            )}
           </div>
         </CardBody>
       </Card>
 
       <Card>
         <CardBody className="space-y-5">
-          <Field label="プレイ時間（分・任意）" hint="時給計算に使います">
-            <NumberInput value={duration} onChange={(e) => setDuration(e.target.value)} placeholder="180" />
+          {format === "tournament" && (
+            <Field label="大会タイトル（任意）" hint="例: JOPT Main, APT Tokyo Main">
+              <Input
+                value={tourneyTitle}
+                onChange={(e) => setTourneyTitle(e.target.value)}
+                placeholder="JOPT Main Event"
+                maxLength={80}
+              />
+            </Field>
+          )}
+
+          <Field
+            label={`プレイ時間（任意${format === "tournament" ? "・覚えてなくてOK" : ""}）`}
+            hint="時給計算に使います"
+          >
+            <div className="space-y-2.5">
+              <div className="flex items-center gap-2">
+                <NumberInput
+                  value={duration}
+                  onChange={(e) => setDuration(e.target.value)}
+                  placeholder="180"
+                />
+                <span className="shrink-0 text-[11px] text-subtle">分</span>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {DURATION_PRESETS.map((p) => {
+                  const active = parseNumber(duration) === p.minutes;
+                  return (
+                    <button
+                      key={p.label}
+                      type="button"
+                      onClick={() => setDuration(active ? "" : String(p.minutes))}
+                      className={
+                        active
+                          ? "btn-chip h-7 rounded-full border border-gold/50 bg-gradient-to-b from-gold/20 to-gold/5 px-2.5 text-[11px] font-medium tracking-wide text-gold-bright"
+                          : "btn-chip h-7 rounded-full border border-border bg-surface/50 px-2.5 text-[11px] tracking-wide text-muted hover:border-gold/40 hover:text-gold-bright"
+                      }
+                    >
+                      {p.label}
+                    </button>
+                  );
+                })}
+                <button
+                  type="button"
+                  onClick={() => setDuration("")}
+                  className="btn-chip h-7 rounded-full border border-border bg-surface/30 px-2.5 text-[11px] text-subtle hover:text-foreground"
+                >
+                  クリア
+                </button>
+              </div>
+            </div>
           </Field>
 
           {format === "tournament" && (

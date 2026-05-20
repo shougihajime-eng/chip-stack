@@ -20,6 +20,8 @@ const HEADERS = [
   "参加人数",
   "メモ",
   "記録日時",
+  "大会タイトル",
+  "リエントリー回数",
 ];
 
 function escapeCsvCell(value: string | number | null | undefined): string {
@@ -49,6 +51,8 @@ export function sessionsToCsv(sessions: Session[]): string {
     s.tourneyEntrants ?? "",
     s.memo ?? "",
     new Date(s.createdAt).toLocaleString("ja-JP"),
+    s.tourneyTitle ?? "",
+    s.reentries ?? "",
   ]);
 
   const all = [HEADERS, ...rows].map((row) => row.map(escapeCsvCell).join(","));

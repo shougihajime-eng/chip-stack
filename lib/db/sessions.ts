@@ -9,8 +9,9 @@ export type SessionInput = Omit<
   "id" | "pnlJpy" | "pnlLocal" | "createdAt" | "updatedAt"
 >;
 
-function computePnl(input: Pick<Session, "buyIn" | "cashOut" | "fxRate">) {
-  const pnlLocal = input.cashOut - input.buyIn;
+function computePnl(input: Pick<Session, "buyIn" | "cashOut" | "fxRate" | "reentries">) {
+  const totalBuyIn = input.buyIn * (1 + (input.reentries ?? 0));
+  const pnlLocal = input.cashOut - totalBuyIn;
   const pnlJpy = toJpy(pnlLocal, input.fxRate);
   return { pnlLocal, pnlJpy };
 }

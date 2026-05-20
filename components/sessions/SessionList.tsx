@@ -146,7 +146,9 @@ function SessionRow({ session }: { session: Session }) {
 
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 truncate text-sm text-foreground">
-              <span className="truncate font-medium">{session.venue}</span>
+              <span className="truncate font-medium">
+                {session.tourneyTitle?.trim() ? session.tourneyTitle : session.venue}
+              </span>
               <span className="shrink-0 text-[10px] uppercase tracking-wider text-subtle">
                 {country.flag}
               </span>
@@ -155,6 +157,18 @@ function SessionRow({ session }: { session: Session }) {
               <span>{getGameLabel(session.game)}</span>
               <span className="text-subtle">·</span>
               <span>{FORMAT_LABEL[session.format]}</span>
+              {session.tourneyTitle?.trim() && (
+                <>
+                  <span className="text-subtle">·</span>
+                  <span className="truncate">{session.venue}</span>
+                </>
+              )}
+              {session.reentries && session.reentries > 0 ? (
+                <>
+                  <span className="text-subtle">·</span>
+                  <span className="text-gold-bright">×{1 + session.reentries}エントリー</span>
+                </>
+              ) : null}
               {session.durationMinutes ? (
                 <>
                   <span className="text-subtle">·</span>
