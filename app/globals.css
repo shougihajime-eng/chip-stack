@@ -218,6 +218,117 @@ input[type="number"] {
   font-variant-numeric: tabular-nums !important;
 }
 
+/* Card deal animation - card flies in with rotation */
+@keyframes card-deal {
+  0% {
+    opacity: 0;
+    transform: translateY(-40px) translateX(var(--deal-dx, 0)) rotate(var(--deal-end, 0deg)) scale(0.85);
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) translateX(0) rotate(var(--deal-end, 0deg)) scale(1);
+  }
+}
+.animate-card-deal {
+  animation: card-deal 700ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Subtle felt shimmer - very slow ambient pulse */
+@keyframes felt-shimmer {
+  0%, 100% { opacity: 0.045; }
+  50% { opacity: 0.075; }
+}
+body::before {
+  animation: felt-shimmer 12s ease-in-out infinite;
+}
+
+/* Hero edge glow pulse */
+@keyframes hero-glow {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(212, 173, 95, 0.18), 0 24px 60px -20px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(212, 173, 95, 0.15); }
+  50% { box-shadow: 0 0 0 1px rgba(212, 173, 95, 0.32), 0 24px 60px -16px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(212, 173, 95, 0.25); }
+}
+.animate-hero-glow {
+  animation: hero-glow 6s ease-in-out infinite;
+}
+
+/* Number entrance — slight upward fade */
+@keyframes number-rise {
+  0% { opacity: 0; transform: translateY(12px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.animate-number-rise {
+  animation: number-rise 600ms cubic-bezier(0.16, 1, 0.3, 1) 200ms both;
+}
+
+/* Button chip-tap feedback */
+@keyframes chip-tap {
+  0% { transform: scale(1); }
+  40% { transform: scale(0.94) rotate(-2deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+.btn-chip:active {
+  animation: chip-tap 280ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Chip drop — used on session save success */
+@keyframes chip-drop {
+  0% { opacity: 0; transform: translateY(-160px) scale(1.4) rotate(-25deg); }
+  55% { opacity: 1; transform: translateY(0) scale(1) rotate(8deg); }
+  70% { transform: translateY(-12px) scale(1.05) rotate(-4deg); }
+  100% { opacity: 1; transform: translateY(0) scale(1) rotate(0deg); }
+}
+.animate-chip-drop {
+  animation: chip-drop 720ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes overlay-fade {
+  0%, 100% { opacity: 0; }
+  20%, 80% { opacity: 1; }
+}
+.animate-overlay-fade {
+  animation: overlay-fade 1100ms ease-in-out forwards;
+}
+
+/* Stagger fade for recent rows */
+@keyframes row-rise {
+  0% { opacity: 0; transform: translateY(8px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.animate-row-rise {
+  animation: row-rise 500ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Card hover lift */
+.card-hover {
+  transition: transform 280ms cubic-bezier(0.16, 1, 0.3, 1), filter 280ms ease;
+}
+.card-hover:hover {
+  transform: translateY(-2px) rotate(var(--card-tilt, 0deg)) scale(1.02);
+  filter: brightness(1.08);
+}
+
+/* Spotlight beam from top — used on hero */
+.spotlight-overlay::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 50% 70% at 50% 0%, rgba(240, 208, 136, 0.14), transparent 60%);
+}
+
+/* Felt stitching edge — gold dotted line inset */
+.felt-stitch {
+  background-image:
+    repeating-linear-gradient(90deg, rgba(212,173,95,0.45) 0 4px, transparent 4px 10px);
+  background-position: top, bottom;
+  background-repeat: no-repeat;
+  background-size: 100% 1px;
+}
+
 /* casino-style decorative divider */
 .felt-edge {
   background: linear-gradient(

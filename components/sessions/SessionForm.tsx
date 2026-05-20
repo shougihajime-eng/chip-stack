@@ -6,6 +6,7 @@ import { useLiveQuery } from "dexie-react-hooks";
 
 import { Button } from "@/components/ui/Button";
 import { Card, CardBody } from "@/components/ui/Card";
+import { ChipDrop } from "@/components/ui/ChipDrop";
 import { Field, Input, NumberInput, Select, Textarea } from "@/components/ui/Field";
 import { Money } from "@/components/ui/Money";
 import { CURRENCIES, type CurrencyCode, formatJpy, getCurrency, toJpy } from "@/lib/currency";
@@ -42,6 +43,7 @@ export function SessionForm({ initial }: Props) {
   const [entrants, setEntrants] = useState<string>(initial?.tourneyEntrants ? String(initial.tourneyEntrants) : "");
   const [memo, setMemo] = useState(initial?.memo ?? "");
   const [saving, setSaving] = useState(false);
+  const [savedPnl, setSavedPnl] = useState<number | null>(null);
 
   const venues = useLiveQuery(() => listVenues(), [], []);
   const venueOptions = useMemo(() => {
@@ -95,7 +97,9 @@ export function SessionForm({ initial }: Props) {
       } else {
         await addSession(data);
       }
-      router.push("/sessions");
+      setSavedPnl(pnlJpy);
+      // Let the chip-drop animation play, then navigate
+      setTimeout(() => router.push("/sessions"), 950);
     } catch (err) {
       console.error(err);
       setSaving(false);
@@ -112,6 +116,8 @@ export function SessionForm({ initial }: Props) {
   const c = getCurrency(currency);
 
   return (
+    <>
+    {savedPnl !== null && <ChipDrop amount={savedPnl} />}
     <form onSubmit={handleSubmit} className="space-y-5">
       <Card>
         <CardBody className="space-y-5">
@@ -288,6 +294,7 @@ export function SessionForm({ initial }: Props) {
           : `JPY 換算額: ${formatJpy(pnlJpy)} （バイイン ${c.symbol}${buyInNum} / キャッシュアウト ${c.symbol}${cashOutNum}）`}
       </p>
     </form>
+    </>
   );
 }
 

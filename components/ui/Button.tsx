@@ -30,7 +30,7 @@ export const Button = forwardRef<
     <button
       ref={ref}
       className={cn(
-        "inline-flex select-none items-center justify-center gap-2 rounded-full border font-medium tracking-wide transition-all duration-150 disabled:cursor-not-allowed disabled:opacity-50",
+        "btn-chip inline-flex select-none items-center justify-center gap-2 rounded-full border font-medium tracking-wide transition-all duration-150 disabled:cursor-not-allowed disabled:opacity-50",
         variants[variant],
         sizes[size],
         className,

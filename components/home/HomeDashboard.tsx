@@ -6,11 +6,14 @@ import { useLiveQuery } from "dexie-react-hooks";
 
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Money } from "@/components/ui/Money";
+import { PlayingCard } from "@/components/ui/PlayingCard";
+import { AnimatedJpy, CountUp } from "@/components/ui/CountUp";
 import { MonthlyChart } from "@/components/charts/MonthlyChart";
 import { listSessions } from "@/lib/db/sessions";
 import type { Session } from "@/lib/db/schema";
 import { formatCurrency } from "@/lib/currency";
 import { FORMAT_LABEL, getCountry, getGameLabel } from "@/lib/games";
+import { cn } from "@/lib/utils";
 
 function computeStats(sessions: Session[]) {
   if (sessions.length === 0) {
@@ -74,39 +77,114 @@ export function HomeDashboard() {
     return <div className="px-1 py-16 text-center text-sm text-muted">読み込み中...</div>;
   }
 
+  const totalTone =
+    stats.total > 0 ? "text-profit" : stats.total < 0 ? "text-loss" : "text-foreground";
+
   return (
     <div className="space-y-6">
-      {/* Hero - cumulative P/L */}
-      <section className="relative overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-felt/55 via-felt-deep/50 to-background card-edge">
-        {/* Decorative card suits in the background */}
-        <div className="pointer-events-none absolute inset-0 select-none overflow-hidden">
-          <SpadeShape className="absolute -right-12 -top-10 h-56 w-56 text-gold/[0.08] sm:-right-6 sm:-top-6 sm:h-72 sm:w-72" />
-          <DiamondShape className="absolute -bottom-14 -left-8 h-40 w-40 text-gold/[0.06] sm:h-56 sm:w-56" />
-        </div>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(212,173,95,0.1),transparent_60%)]" />
-        {/* Top gold filigree line */}
-        <div className="absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-gold/60 to-transparent" />
+      {/* HERO — poker table */}
+      <section className="relative overflow-hidden rounded-3xl border border-border-strong animate-hero-glow">
+        {/* Felt base */}
+        <div className="absolute inset-0 bg-gradient-to-br from-felt-bright/25 via-felt/45 to-felt-deep/70" />
+        {/* Top spotlight */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_80%_at_50%_-10%,rgba(240,208,136,0.16),transparent_55%)]" />
+        {/* Inner gold stitching top & bottom */}
+        <div className="absolute inset-x-8 top-3 h-px bg-gradient-to-r from-transparent via-gold/60 to-transparent" />
+        <div className="absolute inset-x-8 bottom-3 h-px bg-gradient-to-r from-transparent via-gold/50 to-transparent" />
+        {/* Side filigree */}
+        <div className="absolute inset-y-8 left-3 w-px bg-gradient-to-b from-transparent via-gold/35 to-transparent" />
+        <div className="absolute inset-y-8 right-3 w-px bg-gradient-to-b from-transparent via-gold/35 to-transparent" />
 
-        <div className="relative px-6 pt-10 pb-12 sm:px-10 sm:pt-14 sm:pb-16">
-          <div className="flex items-center gap-2.5">
-            <span aria-hidden className="text-gold/80">♠</span>
-            <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-gold">Total P/L</p>
-            <span aria-hidden className="text-gold/80">♥</span>
-          </div>
-          <div className="mt-4">
-            <Money amount={stats.total} size="display" />
-          </div>
-          <div className="mt-5 flex flex-wrap items-baseline gap-x-6 gap-y-2 text-[12px] text-muted">
-            <span>
-              <span className="font-numeric text-foreground">{stats.count}</span> セッション · 勝率{" "}
-              <span className="font-numeric text-foreground">{stats.winRate}%</span>
-            </span>
-            <span>
-              平均 / 回:{" "}
-              <span className="font-numeric text-foreground">
-                {stats.avg >= 0 ? "+" : "−"}¥{Math.abs(stats.avg).toLocaleString("ja-JP")}
-              </span>
-            </span>
+        <div className="relative px-3 py-10 sm:px-10 sm:py-16">
+          <div className="flex items-center justify-center gap-3 sm:gap-10">
+            {/* Left card — Ace of Spades */}
+            <div className="shrink-0">
+              <PlayingCard
+                rank="A"
+                suit="♠"
+                tilt={-9}
+                size="md"
+                className="sm:hidden"
+                flipIn
+                flipDelay={0}
+              />
+              <PlayingCard
+                rank="A"
+                suit="♠"
+                tilt={-9}
+                size="lg"
+                className="hidden sm:block xl:hidden"
+                flipIn
+                flipDelay={0}
+              />
+              <PlayingCard
+                rank="A"
+                suit="♠"
+                tilt={-9}
+                size="xl"
+                className="hidden xl:block"
+                flipIn
+                flipDelay={0}
+              />
+            </div>
+
+            {/* Center: number stack */}
+            <div className="flex min-w-0 flex-col items-center text-center animate-number-rise">
+              <div className="flex items-center gap-2.5">
+                <span aria-hidden className="text-gold/70">♠</span>
+                <p className="text-[10px] font-medium uppercase tracking-[0.32em] text-gold sm:text-[11px]">
+                  Total P/L
+                </p>
+                <span aria-hidden className="text-suit-red/70">♥</span>
+              </div>
+              <div
+                className={cn(
+                  "font-numeric mt-3 text-4xl font-semibold tracking-tight sm:text-6xl xl:text-7xl",
+                  totalTone,
+                )}
+                style={{ textShadow: "0 2px 12px rgba(0,0,0,0.4)" }}
+              >
+                <AnimatedJpy amount={stats.total} durationMs={1200} />
+              </div>
+              <p className="font-numeric mt-3 text-[11px] tracking-wide text-muted sm:text-[13px]">
+                <CountUp value={stats.count} durationMs={900} /> セッション · 勝率{" "}
+                <span className="text-foreground">{stats.winRate}%</span>
+              </p>
+              <p className="font-numeric text-[11px] tracking-wide text-muted sm:text-[13px]">
+                平均/回: {stats.avg >= 0 ? "+" : "−"}¥{Math.abs(stats.avg).toLocaleString("ja-JP")}
+              </p>
+            </div>
+
+            {/* Right card — Ace of Hearts */}
+            <div className="shrink-0">
+              <PlayingCard
+                rank="A"
+                suit="♥"
+                tilt={9}
+                size="md"
+                className="sm:hidden"
+                flipIn
+                flipDelay={140}
+              />
+              <PlayingCard
+                rank="A"
+                suit="♥"
+                tilt={9}
+                size="lg"
+                className="hidden sm:block xl:hidden"
+                flipIn
+                flipDelay={140}
+              />
+              <PlayingCard
+                rank="A"
+                suit="♥"
+                tilt={9}
+                size="xl"
+                className="hidden xl:block"
+                flipIn
+                flipDelay={140}
+              />
+            </div>
           </div>
         </div>
       </section>
@@ -152,7 +230,7 @@ export function HomeDashboard() {
               </p>
               <Link
                 href="/sessions/new"
-                className="mt-5 inline-flex h-10 items-center rounded-full border border-gold/50 bg-gradient-to-b from-gold/25 to-gold/8 px-5 text-sm font-medium tracking-wide text-gold-bright"
+                className="btn-chip mt-5 inline-flex h-10 items-center rounded-full border border-gold/50 bg-gradient-to-b from-gold/25 to-gold/8 px-5 text-sm font-medium tracking-wide text-gold-bright"
               >
                 セッションを追加
               </Link>
@@ -182,29 +260,18 @@ function StatCard({
   tone?: "profit" | "loss";
 }) {
   return (
-    <div className="rounded-2xl border border-border bg-surface/50 p-4">
-      <p className="text-[10px] font-medium uppercase tracking-[0.16em] text-muted">{label}</p>
+    <div className="rounded-2xl border border-border bg-surface/55 p-4">
+      <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-muted">{label}</p>
       <div className="mt-1.5">
-        <Money amount={value} size="md" signed={!tone} className={tone === "profit" ? "text-profit" : tone === "loss" ? "text-loss" : ""} />
+        <Money
+          amount={value}
+          size="md"
+          signed={!tone}
+          className={tone === "profit" ? "text-profit" : tone === "loss" ? "text-loss" : ""}
+        />
       </div>
       {sub && <p className="mt-1 text-[10px] text-subtle">{sub}</p>}
     </div>
-  );
-}
-
-function SpadeShape({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 100 100" className={className} fill="currentColor">
-      <path d="M50 8 C 30 28, 12 42, 12 60 C 12 74, 22 82, 34 82 C 42 82, 47 78, 50 74 L 46 96 L 54 96 L 50 74 C 53 78, 58 82, 66 82 C 78 82, 88 74, 88 60 C 88 42, 70 28, 50 8 Z" />
-    </svg>
-  );
-}
-
-function DiamondShape({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 100 100" className={className} fill="currentColor">
-      <path d="M50 6 L 14 50 L 50 94 L 86 50 Z" />
-    </svg>
   );
 }
 
