@@ -109,7 +109,7 @@ export function buildVenueBuckets(sessions: Session[]): Bucket[] {
     map.set(key, { total: prev.total + s.pnlJpy, count: prev.count + 1, countryCode: s.country });
   }
   return [...map.entries()].map(([key, v]) => {
-    const [country, venue] = key.split("::");
+    const venue = key.split("::")[1] ?? key;
     return {
       key,
       label: `${venue}`,

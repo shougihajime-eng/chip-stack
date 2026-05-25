@@ -107,8 +107,9 @@ export function AccountClient() {
             ログアウト
           </Button>
 
-          <p className="text-[10px] text-subtle">
-            ※ 試験運用中です。本格運用時はもう一段強化したログイン方式に切り替えます。
+          <p className="text-[10px] leading-relaxed text-subtle">
+            記録はこの端末に保存され、「今すぐ同期する」を押したぶんがクラウドにバックアップされます。
+            別の端末でも同じニックネームでログインすれば、いつでも呼び出せます。
           </p>
         </CardBody>
       </Card>
@@ -211,9 +212,9 @@ export function AccountClient() {
 
         <div className="space-y-1.5 rounded-xl border border-border-subtle bg-felt/10 p-3 text-[11px] leading-relaxed text-subtle">
           <p>
-            <span className="text-gold-bright">★ 試験運用中</span>です。ニックネームとパスワードだけで使えます（メール不要）。
+            <span className="text-gold-bright">メール登録は不要。</span>ニックネームとパスワードだけではじめられます。
           </p>
-          <p>友達と共有して使う場合は、同じニックネームを使わないよう注意してください。</p>
+          <p>パスワードは忘れないように保管してください。複数の端末で同じ記録を見たいときは、同じニックネームでログインします。</p>
         </div>
       </CardBody>
     </Card>

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { BottomNav } from "./BottomNav";
+import { SiteFooter } from "./SiteFooter";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   return (
@@ -27,6 +28,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <NavLink href="/">ホーム</NavLink>
             <NavLink href="/sessions">セッション</NavLink>
             <NavLink href="/account">クラウド</NavLink>
+            <NavLink href="/settings">設定</NavLink>
             <NavLink href="/sessions/new" emphasis>
               + 新規セッション
             </NavLink>
@@ -43,7 +45,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
-      <main className="relative z-10 flex-1 pb-28 sm:pb-12">{children}</main>
+      <main className="relative z-10 flex-1">{children}</main>
+
+      <div className="relative z-10 pb-28 sm:pb-0">
+        <SiteFooter />
+      </div>
 
       <BottomNav />
     </div>

@@ -74,9 +74,30 @@ export function downloadCsv(sessions: Session[], filename = "casino-ledger.csv")
 }
 
 export function suggestFilename(): string {
+  return `casino-ledger-${ymd()}.csv`;
+}
+
+function ymd(): string {
   const d = new Date();
   const yyyy = d.getFullYear();
   const mm = String(d.getMonth() + 1).padStart(2, "0");
   const dd = String(d.getDate()).padStart(2, "0");
-  return `casino-ledger-${yyyy}${mm}${dd}.csv`;
+  return `${yyyy}${mm}${dd}`;
+}
+
+/** Trigger a browser download for an arbitrary text payload (used for JSON backups). */
+export function downloadText(content: string, filename: string, mime = "application/json"): void {
+  const blob = new Blob([content], { type: `${mime};charset=utf-8` });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+export function suggestBackupFilename(): string {
+  return `casino-ledger-backup-${ymd()}.json`;
 }

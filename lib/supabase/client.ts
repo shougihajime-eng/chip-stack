@@ -5,6 +5,8 @@ import { createClient } from "@supabase/supabase-js";
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
+// No generated Supabase types in this project, so the Database generic stays loose.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ChipStackClient = ReturnType<typeof createClient<any, "chip_stack", any>>;
 
 let _client: ChipStackClient | null = null;
