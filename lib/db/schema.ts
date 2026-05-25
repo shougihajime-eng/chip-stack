@@ -46,3 +46,24 @@ export interface VenuePreset {
   favorite: 0 | 1;
   lastUsedAt: string;
 }
+
+/** Generic key-value store for user preferences (goals, etc.). value is JSON. */
+export interface AppSetting {
+  key: string;
+  value: string;
+  updatedAt: string;
+}
+
+/**
+ * Monthly goals & responsible-play watch.
+ * All amounts are in JPY. `null` means "not set" (the user left it blank).
+ * Loss caps are stored as positive numbers (how much loss is acceptable).
+ */
+export interface MonthlyGoals {
+  /** target net profit for the month (e.g. 50000 = aim to be +¥50,000) */
+  targetJpy: number | null;
+  /** how much loss is OK across the whole month (positive number) */
+  monthlyLossCapJpy: number | null;
+  /** how much loss is OK in a single session (positive number) */
+  sessionLossCapJpy: number | null;
+}

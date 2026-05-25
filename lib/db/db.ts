@@ -1,11 +1,12 @@
 "use client";
 
 import Dexie, { type EntityTable } from "dexie";
-import type { Session, VenuePreset } from "./schema";
+import type { AppSetting, Session, VenuePreset } from "./schema";
 
 export class CasinoLedgerDB extends Dexie {
   sessions!: EntityTable<Session, "id">;
   venues!: EntityTable<VenuePreset, "id">;
+  settings!: EntityTable<AppSetting, "key">;
 
   constructor() {
     super("casino_ledger");
@@ -26,6 +27,12 @@ export class CasinoLedgerDB extends Dexie {
         if (s.reentries == null) s.reentries = 0;
         if (s.tourneyTitle == null) s.tourneyTitle = null;
       });
+    });
+    // v4: add a key-value settings table for monthly goals (existing data untouched)
+    this.version(4).stores({
+      sessions: "++id, playDate, game, format, country, currency, pnlJpy, createdAt, cloudId, syncedAt",
+      venues: "++id, country, name, favorite, lastUsedAt",
+      settings: "key",
     });
   }
 }

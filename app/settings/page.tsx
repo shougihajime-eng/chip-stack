@@ -13,7 +13,7 @@ export default function SettingsPage() {
           設定とデータの保管
         </h1>
         <p className="mt-2 max-w-xl text-sm text-muted">
-          大切な記録を守るための場所です。バックアップ（保存）と復元（読み込み）ができます。
+          今月の目標づくりと、大切な記録を守るための場所です。目標の設定・バックアップ（保存）・復元（読み込み）ができます。
         </p>
       </header>
       <SettingsClient />

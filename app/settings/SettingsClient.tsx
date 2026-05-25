@@ -6,6 +6,7 @@ import { useLiveQuery } from "dexie-react-hooks";
 
 import { Button } from "@/components/ui/Button";
 import { Card, CardBody, CardHeader, CardTitle } from "@/components/ui/Card";
+import { Field, NumberInput } from "@/components/ui/Field";
 import {
   clearAll,
   exportJson,
@@ -14,6 +15,8 @@ import {
   listSessions,
   type RestoreResult,
 } from "@/lib/db/sessions";
+import { DEFAULT_GOALS, getGoals, saveGoals } from "@/lib/db/goals";
+import type { MonthlyGoals } from "@/lib/db/schema";
 import { downloadText, suggestBackupFilename } from "@/lib/export";
 
 const LAST_BACKUP_KEY = "casino-ledger-last-backup";
@@ -50,6 +53,8 @@ export function SettingsClient() {
     <div className="space-y-6">
       {needsBackup && <BackupReminder lastBackup={lastBackup} />}
 
+      <GoalsCard />
+
       <StoredDataCard summary={summary} loading={summary === null} />
 
       <BackupCard
@@ -69,6 +74,130 @@ export function SettingsClient() {
         端末を変える・機種変更する前には、必ずバックアップを保存してください。
       </p>
     </div>
+  );
+}
+
+function parseAmount(raw: string): number | null {
+  const cleaned = raw.replace(/[, 、￥¥]/g, "");
+  if (cleaned.trim() === "") return null;
+  const n = Number(cleaned);
+  return Number.isFinite(n) ? n : null;
+}
+
+function GoalsCard() {
+  // Load saved goals first, then mount the form initialised from them.
+  // (Keeps the form free of seed-from-effect logic, which the lint rule forbids.)
+  const goals = useLiveQuery(() => getGoals(), [], undefined);
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>今月の目標と見守り</CardTitle>
+        <span className="text-[11px] text-subtle">決めなくてもOK</span>
+      </CardHeader>
+      {goals === undefined ? (
+        <CardBody>
+          <p className="text-sm text-muted">読み込み中...</p>
+        </CardBody>
+      ) : (
+        <GoalsForm goals={goals} />
+      )}
+    </Card>
+  );
+}
+
+function GoalsForm({ goals }: { goals: MonthlyGoals }) {
+  const [target, setTarget] = useState(goals.targetJpy != null ? String(goals.targetJpy) : "");
+  const [monthCap, setMonthCap] = useState(
+    goals.monthlyLossCapJpy != null ? String(goals.monthlyLossCapJpy) : "",
+  );
+  const [sessionCap, setSessionCap] = useState(
+    goals.sessionLossCapJpy != null ? String(goals.sessionLossCapJpy) : "",
+  );
+  const [busy, setBusy] = useState(false);
+  const [done, setDone] = useState(false);
+
+  function edit(setter: (v: string) => void) {
+    return (e: React.ChangeEvent<HTMLInputElement>) => {
+      setter(e.target.value);
+      setDone(false);
+    };
+  }
+
+  async function handleSave() {
+    setBusy(true);
+    setDone(false);
+    await saveGoals({
+      targetJpy: parseAmount(target),
+      monthlyLossCapJpy: parseAmount(monthCap),
+      sessionLossCapJpy: parseAmount(sessionCap),
+    });
+    setBusy(false);
+    setDone(true);
+  }
+
+  async function handleClear() {
+    setTarget("");
+    setMonthCap("");
+    setSessionCap("");
+    setBusy(true);
+    await saveGoals(DEFAULT_GOALS);
+    setBusy(false);
+    setDone(true);
+  }
+
+  return (
+    <CardBody className="space-y-5">
+      <p className="text-[13px] leading-relaxed text-muted">
+        「今月いくら勝ちたい」を決めると、ホームでがんばりが見える化されます。
+        負けの上限を決めておくと、近づいたときにやさしくお知らせします（使いすぎ見守り）。
+        <span className="text-foreground">入れた項目だけ</span>がホームに出ます。空欄のままでも大丈夫です。
+      </p>
+
+      <Field label="今月の勝ち目標" hint="¥ ・ 例: 50000">
+        <NumberInput
+          value={target}
+          onChange={edit(setTarget)}
+          placeholder="（決めない）"
+          inputMode="numeric"
+        />
+      </Field>
+
+      <Field label="1か月の負けの上限（見守り）" hint="¥ ・ 例: 30000">
+        <NumberInput
+          value={monthCap}
+          onChange={edit(setMonthCap)}
+          placeholder="（決めない）"
+          inputMode="numeric"
+        />
+      </Field>
+
+      <Field label="1回の負けの上限（見守り）" hint="¥ ・ 例: 20000">
+        <NumberInput
+          value={sessionCap}
+          onChange={edit(setSessionCap)}
+          placeholder="（決めない）"
+          inputMode="numeric"
+        />
+      </Field>
+      <p className="-mt-2 text-[11px] leading-relaxed text-subtle">
+        1回の上限は、セッションを記録するときに負けがこれをこえると、入力画面でそっとお知らせします。
+      </p>
+
+      <div className="flex flex-col gap-2 sm:flex-row-reverse">
+        <Button onClick={handleSave} disabled={busy} size="lg" className="flex-1">
+          {busy ? "保存中..." : "目標を保存"}
+        </Button>
+        <Button onClick={handleClear} variant="ghost" size="lg" disabled={busy} className="sm:flex-none">
+          すべて空にする
+        </Button>
+      </div>
+      {done && (
+        <p className="rounded-xl border border-profit/30 bg-profit-bg px-4 py-3 text-[12px] text-foreground">
+          ✓ 目標を保存しました。ホーム画面でいつでも確認できます。
+        </p>
+      )}
+    </CardBody>
   );
 }
 

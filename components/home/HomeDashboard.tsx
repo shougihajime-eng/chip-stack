@@ -12,6 +12,7 @@ import { BreakdownChart, buildGameBuckets, buildVenueBuckets } from "@/component
 import { AnalyticsCards } from "./AnalyticsCards";
 import { HeroTable } from "./HeroTable";
 import { CasinoTicker } from "./CasinoTicker";
+import { GoalCard } from "./GoalCard";
 import { listSessions } from "@/lib/db/sessions";
 import type { Session } from "@/lib/db/schema";
 import { formatCurrency } from "@/lib/currency";
@@ -108,6 +109,9 @@ export function HomeDashboard() {
         <ChipStatCard label="最大の勝ち" value={stats.bestWin} tone="profit" chip="gold" delay={160} />
         <ChipStatCard label="最大の負け" value={stats.worstLoss} tone="loss" chip="red" delay={240} />
       </div>
+
+      {/* Monthly goal & responsible-play watch */}
+      <GoalCard sessions={sessions} />
 
       {/* MAIN GRID — chart + analytics side-by-side on PC */}
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1.55fr_1fr]">

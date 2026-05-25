@@ -20,6 +20,7 @@ import {
   updateSession,
 } from "@/lib/db/sessions";
 import type { Session } from "@/lib/db/schema";
+import { DEFAULT_GOALS, getGoals } from "@/lib/db/goals";
 import { todayIsoDate } from "@/lib/utils";
 import { getFxRate, type FxResult } from "@/lib/fx";
 
@@ -70,6 +71,7 @@ export function SessionForm({ initial }: Props) {
 
   const venues = useLiveQuery(() => listVenues(), [], []);
   const favorites = useLiveQuery(() => listFavoriteVenues(), [], []);
+  const goals = useLiveQuery(() => getGoals(), [], DEFAULT_GOALS);
   const venueOptions = useMemo(() => {
     const list = (venues ?? []).filter((v) => v.country === country);
     return list.slice(0, 8).map((v) => v.name);
@@ -124,6 +126,9 @@ export function SessionForm({ initial }: Props) {
   const totalBuyInLocal = buyInNum * (1 + reentryNum);
   const pnlLocal = cashOutNum - totalBuyInLocal;
   const pnlJpy = toJpy(pnlLocal, rateNum || 1);
+
+  const sessionLossCap = goals?.sessionLossCapJpy ?? null;
+  const overSessionCap = sessionLossCap != null && pnlJpy < 0 && -pnlJpy > sessionLossCap;
 
   const canSave = playDate && venue.trim() && buyIn !== "" && cashOut !== "" && rateNum > 0 && !saving;
 
@@ -465,6 +470,15 @@ export function SessionForm({ initial }: Props) {
                 {cashOutNum.toLocaleString("en-US", { maximumFractionDigits: 2 })} −{" "}
                 {c.symbol}
                 {totalBuyInLocal.toLocaleString("en-US", { maximumFractionDigits: 2 })}
+              </p>
+            )}
+            {overSessionCap && (
+              <p className="mt-3 flex items-start gap-2 rounded-lg border border-loss/30 bg-loss/10 px-3 py-2 text-[12px] leading-relaxed text-loss">
+                <span aria-hidden>🫶</span>
+                <span>
+                  1回の負けの目安（{formatJpy(sessionLossCap!)}）をこえています。記録はこのまま保存できます。
+                  無理せず、今日はここでひと息ついても大丈夫です。
+                </span>
               </p>
             )}
           </div>
